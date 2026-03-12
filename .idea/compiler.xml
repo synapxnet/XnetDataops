@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Annotation profile for DataOps Parent" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="dataops-dap-service" />
+        <module name="dataops-dsm-service" />
+        <module name="dataops-dqm-service" />
+        <module name="dataops-ddv-service" />
+        <module name="dataops-dob-service" />
+        <module name="dataops-dau-service" />
+        <module name="dataops-dms-service" />
+        <module name="dataops-tsk-service" />
+        <module name="dataops-das-service" />
+        <module name="dataops-usr-service" />
+        <module name="dataops-dgv-service" />
+        <module name="dataops-dim-service" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="dataops-dap-service" options="-parameters" />
+      <module name="dataops-das-service" options="-parameters" />
+      <module name="dataops-dau-service" options="-parameters" />
+      <module name="dataops-ddv-service" options="-parameters" />
+      <module name="dataops-dgv-service" options="-parameters" />
+      <module name="dataops-dim-service" options="-parameters" />
+      <module name="dataops-dms-service" options="-parameters" />
+      <module name="dataops-dob-service" options="-parameters" />
+      <module name="dataops-dqm-service" options="-parameters" />
+      <module name="dataops-dsm-service" options="-parameters" />
+      <module name="dataops-tsk-service" options="-parameters" />
+      <module name="dataops-usr-service" options="-parameters" />
+    </option>
+  </component>
+</project>

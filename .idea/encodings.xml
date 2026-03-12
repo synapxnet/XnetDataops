@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/dataops-dap-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dap-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-das-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-das-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dau-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dau-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-ddv-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-ddv-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dgv-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dgv-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dim-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dim-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dms-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dms-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dob-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dob-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dqm-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dqm-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dsm-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-dsm-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-tsk-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-tsk-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-usr-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataops-usr-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

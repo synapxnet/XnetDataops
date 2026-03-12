@@ -1,0 +1,246 @@
+version: '3.8'
+
+services:
+  # ============================================================
+  # 前端
+  # ============================================================
+  frontend:
+    build:
+      context: ../XnetDataops-web
+      dockerfile: ../XnetDataops/deploy/Dockerfile.frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - usr-service
+      - dsm-service
+      - dim-service
+      - ddv-service
+      - tsk-service
+      - dqm-service
+      - dgv-service
+      - das-service
+      - dap-service
+      - dms-service
+      - dob-service
+      - dau-service
+    networks:
+      - dataops-net
+
+  # ============================================================
+  # 后端微服务
+  # ============================================================
+  usr-service:
+    build:
+      context: ./dataops-usr-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9287:9287"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATA_REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - dataops-net
+
+  dsm-service:
+    build:
+      context: ./dataops-dsm-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9281:9281"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+    depends_on:
+      - mysql
+    networks:
+      - dataops-net
+
+  dim-service:
+    build:
+      context: ./dataops-dim-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9282:9282"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+    depends_on:
+      - mysql
+    networks:
+      - dataops-net
+
+  ddv-service:
+    build:
+      context: ./dataops-ddv-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9283:9283"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+    depends_on:
+      - mysql
+    networks:
+      - dataops-net
+
+  tsk-service:
+    build:
+      context: ./dataops-tsk-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9284:9284"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+    depends_on:
+      - mysql
+    networks:
+      - dataops-net
+
+  dqm-service:
+    build:
+      context: ./dataops-dqm-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9285:9285"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+    depends_on:
+      - mysql
+    networks:
+      - dataops-net
+
+  dgv-service:
+    build:
+      context: ./dataops-dgv-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9286:9286"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+    depends_on:
+      - mysql
+    networks:
+      - dataops-net
+
+  das-service:
+    build:
+      context: ./dataops-das-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9288:9288"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+    depends_on:
+      - mysql
+    networks:
+      - dataops-net
+
+  dap-service:
+    build:
+      context: ./dataops-dap-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9289:9289"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+    depends_on:
+      - mysql
+    networks:
+      - dataops-net
+
+  dms-service:
+    build:
+      context: ./dataops-dms-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9290:9290"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+    depends_on:
+      - mysql
+    networks:
+      - dataops-net
+
+  dob-service:
+    build:
+      context: ./dataops-dob-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9291:9291"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+    depends_on:
+      - mysql
+    networks:
+      - dataops-net
+
+  dau-service:
+    build:
+      context: ./dataops-dau-service
+      dockerfile: ../deploy/Dockerfile
+    ports:
+      - "9292:9292"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+    depends_on:
+      - mysql
+    networks:
+      - dataops-net
+
+  # ============================================================
+  # 基础设施
+  # ============================================================
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - MYSQL_DATABASE=XnetDataops
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./sql/xnet_dataops_ddl.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - dataops-net
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - dataops-net
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  dataops-net:
+    driver: bridge
