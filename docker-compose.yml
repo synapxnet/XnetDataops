@@ -225,6 +225,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./sql/xnet_dataops_ddl.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./sql/xnet_dataops_demo.sql:/docker-entrypoint-initdb.d/02-demo-data.sql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     networks:
       - dataops-net

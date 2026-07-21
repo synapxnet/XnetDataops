@@ -1,5 +1,7 @@
 <div align="center">
 
+**简体中文** | [English](./README.en-US.md) | [日本語](./README.ja-JP.md)
+
 # XnetDataops
 
 **覆盖数据集成、开发、治理与服务化的开源 DataOps 平台**
@@ -126,6 +128,12 @@ mvn -DskipTests package
 cp .env.example .env
 docker compose up -d --build
 docker compose ps
+```
+
+新建数据库卷时，Compose 会依次加载完整 DDL 和 `sql/xnet_dataops_demo.sql`。该演示脚本使用 `demo-dataops-` 标记，可重复执行且不会覆盖用户自行创建的数据；已有数据库可手动执行：
+
+```bash
+docker compose exec -T mysql sh -lc 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" XnetDataops' < sql/xnet_dataops_demo.sql
 ```
 
 生产环境请将数据库、缓存和服务端口置于受控网络中，并使用独立密钥与强密码。
