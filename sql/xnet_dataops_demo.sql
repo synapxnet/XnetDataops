@@ -80,7 +80,7 @@ INSERT INTO xnet_dataops_usr_user
   (uid, username, password, email, phone, user_type, status, last_login_at, created_at)
 VALUES
   ('demo-dataops-user-admin', 'demo_admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6CQARaY1.k0YGKISbVFnTUjXS',
-   'admin@demo.example', '12345678900', 'admin', 'active', NOW() - INTERVAL 8 MINUTE, NOW() - INTERVAL 120 DAY),
+   'admin@demo.example', '12345678910', 'admin', 'active', NOW() - INTERVAL 8 MINUTE, NOW() - INTERVAL 120 DAY),
   ('demo-dataops-user-dev', 'demo_developer', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6CQARaY1.k0YGKISbVFnTUjXS',
    'developer@demo.example', '12345678901', 'normal', 'active', NOW() - INTERVAL 2 HOUR, NOW() - INTERVAL 95 DAY),
   ('demo-dataops-user-auditor', 'demo_auditor', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6CQARaY1.k0YGKISbVFnTUjXS',
