@@ -6,12 +6,12 @@
 
 **覆盖数据集成、开发、治理与服务化的开源 DataOps 平台**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-1677ff.svg)](https://www.xnetdataops.synapxnet.cn)
+[![Version](https://img.shields.io/badge/version-1.0.0-1677ff.svg)](http://www.xnetdataops.synapxnet.cn)
 [![Java](https://img.shields.io/badge/Java-17-e76f00.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-6db33f.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/license-MIT-2ea44f.svg)](./LICENSE)
 
-[在线体验](https://www.xnetdataops.synapxnet.cn) · [前端仓库 XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) · [OpenXnet 开源社区](https://openxnet.synapxnet.com) · [查看许可](./LICENSE)
+[在线体验](http://www.xnetdataops.synapxnet.cn) · [前端仓库 XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) · [OpenXnet 开源社区](https://openxnet.synapxnet.com) · [查看许可](./LICENSE)
 
 </div>
 
@@ -140,7 +140,7 @@ docker compose exec -T mysql sh -lc 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" XnetD
 
 ## 在线体验
 
-- 访问地址：<https://www.xnetdataops.synapxnet.cn>
+- 访问地址：<http://www.xnetdataops.synapxnet.cn>
 - 演示手机号：`12345678900`
 - 演示验证码：`000000`
 
