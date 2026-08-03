@@ -39,6 +39,12 @@ XnetDataops is an open-source, end-to-end DataOps platform maintained by the **S
 
 This backend repository and [XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) form an enterprise-grade, multi-tenant, frontend/backend-separated system. Twelve modular services can be deployed together or integrated by domain.
 
+## GOAI Competition 1.0.0
+
+The `GOAI-Competition` branch adds Agent evidence for quality reports, schema snapshots, stable bounded lineage, and workflow instances. Its versioned fixture demonstrates the 120-field production feature asset versus the model contract's expected 128 dimensions, with bounded and redacted workflow logs.
+
+[Migrations, fixture, API examples, and verification](./docs/goai-handoff/HANDOFF-GOAI-COMPETITION-1.0.0.md) · [Companion data evidence UI](https://github.com/synapxnet/XnetDataops-web/tree/GOAI-Competition)
+
 ## Highlights
 
 - Enterprise multi-tenancy with user, role, team, and data boundaries.

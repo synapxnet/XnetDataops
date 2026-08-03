@@ -33,6 +33,24 @@ public interface QualityRuleMapper {
     @Select("SELECT * FROM xnet_dataops_dqm_quality_report WHERE rule_id = #{ruleId} ORDER BY check_time DESC")
     List<QualityReport> findReportsByRuleId(@Param("ruleId") Long ruleId);
 
+    /**
+     * 根据稳定报告 UID 查询质量报告。
+     *
+     * @param uid 报告 UID
+     * @return 质量报告，不存在时返回 null
+     */
+    @Select("SELECT * FROM xnet_dataops_dqm_quality_report WHERE uid = #{uid} LIMIT 1")
+    QualityReport findReportByUid(@Param("uid") String uid);
+
+    /**
+     * 查询指定报告产生的质量告警。
+     *
+     * @param reportId 报告数字 ID
+     * @return 质量告警列表
+     */
+    @Select("SELECT * FROM xnet_dataops_dqm_quality_alert WHERE report_id = #{reportId} ORDER BY triggered_at DESC")
+    List<QualityAlert> findAlertsByReportId(@Param("reportId") Long reportId);
+
     @Insert("INSERT INTO xnet_dataops_dqm_quality_report (uid, rule_id, check_time, status, total_rows, failed_rows, pass_rate, detail_json) " +
             "VALUES (#{uid}, #{ruleId}, #{checkTime}, #{status}, #{totalRows}, #{failedRows}, #{passRate}, #{detailJson})")
     @Options(useGeneratedKeys = true, keyProperty = "id")

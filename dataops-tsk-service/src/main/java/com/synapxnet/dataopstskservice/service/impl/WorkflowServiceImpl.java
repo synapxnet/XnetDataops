@@ -60,6 +60,21 @@ public class WorkflowServiceImpl implements WorkflowService {
         return ti;
     }
 
+    /**
+     * 根据稳定 UID 获取任务实例，避免 Agent Controller 遍历列表。
+     *
+     * @param uid 任务实例 UID
+     * @return 任务实例
+     */
+    @Override
+    public TaskInstance getInstanceByUid(String uid) {
+        TaskInstance instance = workflowMapper.findInstanceByUid(uid);
+        if (instance == null) {
+            throw new IllegalArgumentException("TaskInstance not found: " + uid);
+        }
+        return instance;
+    }
+
     @Override public TaskInstance triggerWorkflow(Long workflowId, String triggerType) {
         getById(workflowId);
         TaskInstance instance = new TaskInstance();
@@ -73,5 +88,19 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     @Override public List<NodeInstance> getNodeInstances(Long taskInstanceId) {
         return workflowMapper.findNodeInstancesByTaskId(taskInstanceId);
+    }
+
+    /**
+     * 按需读取节点日志，未请求日志时使用排除 log_content 的专用 SQL。
+     *
+     * @param taskInstanceId 任务实例数字 ID
+     * @param includeLogSummary 是否读取日志字段
+     * @return 节点实例列表
+     */
+    @Override
+    public List<NodeInstance> getNodeInstances(Long taskInstanceId, boolean includeLogSummary) {
+        return includeLogSummary
+                ? workflowMapper.findNodeInstancesByTaskId(taskInstanceId)
+                : workflowMapper.findNodeInstancesWithoutLog(taskInstanceId);
     }
 }

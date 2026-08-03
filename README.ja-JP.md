@@ -39,6 +39,12 @@ XnetDataops は **SynapXnet チーム**が公開するエンドツーエンド D
 
 本バックエンドと [XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) は、企業向けマルチテナント、フロントエンド・バックエンド分離システムを構成します。12 個のサービスは一括またはモジュール単位で導入できます。
 
+## GOAI Competition 1.0.0
+
+`GOAI-Competition` ブランチは品質レポート、Schema スナップショット、安定した有界リネージュ、ワークフロー実行証拠を追加します。バージョン管理された Fixture は、本番特徴量 120 フィールドとモデル契約 128 次元の差を再現します。
+
+[マイグレーション、Fixture、API 例、検証結果](./docs/goai-handoff/HANDOFF-GOAI-COMPETITION-1.0.0.md) · [対応するデータ証拠 UI](https://github.com/synapxnet/XnetDataops-web/tree/GOAI-Competition)
+
 ## 特長
 
 - ユーザー、ロール、チーム、データ境界を備えた企業向けマルチテナント。

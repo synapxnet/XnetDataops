@@ -39,6 +39,12 @@ XnetDataops 是由 **SynapXnet 团队**开源的一站式 DataOps 平台，围�
 
 本仓库是平台后端，与 [XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) 前端仓库共同组成企业级、多租户、前后端分离系统。平台将不同数据职能拆分为十二个可独立部署的微服务，既可以整体运行，也可以按企业现有数据架构选择性接入。
 
+## GOAI Competition 1.0.0
+
+`GOAI-Competition` 分支新增质量报告、Schema 快照、稳定有界血缘和工作流实例四类 Agent 证据。版本化 Fixture 固定展示生产特征资产 120 字段与模型契约期望 128 维之间的差异，并对工作流日志做脱敏和长度限制。
+
+[查看迁移、Fixture、调用样例和验证记录](./docs/goai-handoff/HANDOFF-GOAI-COMPETITION-1.0.0.md) · [配套数据证据页](https://github.com/synapxnet/XnetDataops-web/tree/GOAI-Competition)
+
 ## 项目优势
 
 - **企业多租户**：以租户、用户、角色和权限边界支撑不同数据团队协作。
