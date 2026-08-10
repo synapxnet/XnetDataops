@@ -17,6 +17,7 @@ import java.util.Map;
  */
 final class DelegatedTokenVerifier {
 
+    private static final long MAX_TOKEN_LIFETIME_SECONDS = 300;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final byte[] secret;
     private final String audience;
@@ -111,6 +112,9 @@ final class DelegatedTokenVerifier {
         Object expires = claims.get("exp");
         if (!(expires instanceof Number number) || number.longValue() <= now) {
             throw new AgentContractException(401, "UNAUTHENTICATED", "委托令牌已过期");
+        }
+        if (number.longValue() > now + MAX_TOKEN_LIFETIME_SECONDS) {
+            throw new AgentContractException(401, "UNAUTHENTICATED", "委托令牌有效期超过五分钟");
         }
         if (!audience.equals(claims.get("aud"))) {
             throw new AgentContractException(401, "UNAUTHENTICATED", "委托令牌受众无效");

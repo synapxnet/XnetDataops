@@ -43,6 +43,17 @@ class DelegatedTokenVerifierTest {
                 () -> verifier.verify(token, "ws_goai_demo", "dataops.lineage.get")).getCode());
     }
 
+    /** 超过五分钟的委托 Token 必须失败关闭。 */
+    @Test
+    void rejectsLongLivedDelegation() throws Exception {
+        DelegatedTokenVerifier verifier = new DelegatedTokenVerifier(SECRET, "openxnet-agent-adapter");
+        String token = "Bearer " + token("ws_goai_demo", List.of("dataops.schema.snapshot.get"), 3600);
+
+        assertEquals("UNAUTHENTICATED", assertThrows(
+                AgentContractException.class,
+                () -> verifier.verify(token, "ws_goai_demo", "dataops.schema.snapshot.get")).getCode());
+    }
+
     /** 生成仅用于测试的 HS256 委托 Token。 */
     private String token(String workspaceId, List<String> tools, long lifetimeSeconds) throws Exception {
         ObjectMapper mapper = new ObjectMapper();

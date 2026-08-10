@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private static final String DEMO_PHONE = "12345678900";
+    private static final String DEMO_PHONE = "17870171303";
     private static final String DEMO_VERIFICATION_CODE = "000000";
 
     private final UserMapper userMapper;
