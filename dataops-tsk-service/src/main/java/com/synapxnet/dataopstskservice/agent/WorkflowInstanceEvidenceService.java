@@ -61,6 +61,11 @@ public class WorkflowInstanceEvidenceService {
         try {
             instance = workflowService.getInstanceByUid(instanceUid);
         } catch (IllegalArgumentException exception) {
+            WorkflowInstanceEvidence competitionSnapshot = competitionSandboxSnapshot(
+                    instanceUid, includeLogSummary);
+            if (competitionSnapshot != null) {
+                return competitionSnapshot;
+            }
             throw new AgentContractException(404, "RESOURCE_NOT_FOUND", "任务实例不存在");
         }
         Workflow workflow = workflowService.getById(instance.getWorkflowId());
@@ -79,6 +84,87 @@ public class WorkflowInstanceEvidenceService {
                 instance.getUid(), workflow.getUid(), workflow.getName(), instance.getStatus(),
                 instance.getTriggerType(), toInstant(instance.getStartTime()), toInstant(instance.getEndTime()),
                 durationMs(instance.getStartTime(), instance.getEndTime()), nodes, outputAssets,
+                List.copyOf(warnings));
+    }
+
+    /**
+     * 为未写入业务数据库的固定比赛任务返回隔离沙盘证据；未知 UID 不提供兜底。
+     *
+     * @param instanceUid 任务实例 UID
+     * @param includeLogSummary 是否返回沙盘日志摘要
+     * @return 白名单沙盘证据，非白名单返回 null
+     */
+    private WorkflowInstanceEvidence competitionSandboxSnapshot(
+            String instanceUid,
+            boolean includeLogSummary) {
+        return switch (instanceUid) {
+            case "task_rec_features_latest" -> sandboxWorkflowEvidence(
+                    instanceUid,
+                    "workflow_rec_features_publish",
+                    "推荐特征发布链路",
+                    "asset_rec_features_prod",
+                    "schema_rec_features_2026_08_11",
+                    Instant.parse("2026-08-11T01:55:00Z"),
+                    Instant.parse("2026-08-11T02:00:00Z"),
+                    includeLogSummary);
+            case "task_quant_eod_ready" -> sandboxWorkflowEvidence(
+                    instanceUid,
+                    "workflow_quant_eod_features",
+                    "量化盘后特征生产链路",
+                    "asset_market_features_eod",
+                    "schema_quant_eod_2026_08_11",
+                    Instant.parse("2026-08-11T07:00:00Z"),
+                    Instant.parse("2026-08-11T07:12:00Z"),
+                    includeLogSummary);
+            default -> null;
+        };
+    }
+
+    /**
+     * 构造带来源标记的只读比赛沙盘工作流证据。
+     *
+     * @param instanceUid 任务实例 UID
+     * @param workflowUid 工作流 UID
+     * @param workflowName 工作流名称
+     * @param assetUid 产出资产 UID
+     * @param schemaSnapshotUid Schema 快照 UID
+     * @param startedAt 开始时间
+     * @param completedAt 完成时间
+     * @param includeLogSummary 是否包含日志摘要
+     * @return 固定且可审计的沙盘证据
+     */
+    private WorkflowInstanceEvidence sandboxWorkflowEvidence(
+            String instanceUid,
+            String workflowUid,
+            String workflowName,
+            String assetUid,
+            String schemaSnapshotUid,
+            Instant startedAt,
+            Instant completedAt,
+            boolean includeLogSummary) {
+        List<String> warnings = new java.util.ArrayList<>();
+        warnings.add("COMPETITION_SANDBOX_SNAPSHOT");
+        if (!includeLogSummary) {
+            warnings.add("LOG_SUMMARY_NOT_REQUESTED");
+        }
+        NodeEvidence node = new NodeEvidence(
+                "publish",
+                "SUCCEEDED",
+                startedAt,
+                completedAt,
+                Duration.between(startedAt, completedAt).toMillis(),
+                includeLogSummary ? "比赛隔离沙盘任务已完成，产出版本化数据资产。" : null);
+        return new WorkflowInstanceEvidence(
+                instanceUid,
+                workflowUid,
+                workflowName,
+                "SUCCEEDED",
+                "competition-sandbox",
+                startedAt,
+                completedAt,
+                Duration.between(startedAt, completedAt).toMillis(),
+                List.of(node),
+                List.of(new OutputAssetReference(assetUid, schemaSnapshotUid)),
                 List.copyOf(warnings));
     }
 

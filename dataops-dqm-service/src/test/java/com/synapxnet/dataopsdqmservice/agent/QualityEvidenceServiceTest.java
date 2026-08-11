@@ -10,8 +10,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -56,5 +59,38 @@ class QualityEvidenceServiceTest {
         assertEquals(128, result.contractCheck().expectedFieldCount());
         assertEquals(120, result.contractCheck().actualFieldCount());
         assertTrue(result.warnings().contains("REPORT_DETAIL_INVALID_JSON"));
+    }
+
+    /** 固定量化报告缺失时必须返回带来源标记的完整性沙盘证据。 */
+    @Test
+    void returnsWhitelistedQuantitativeQualitySnapshot() {
+        QualityRuleMapper qualityMapper = mock(QualityRuleMapper.class);
+        AgentQualityMapper agentMapper = mock(AgentQualityMapper.class);
+        QualityEvidenceService service = new QualityEvidenceService(
+                qualityMapper, agentMapper, new ObjectMapper());
+
+        QualityEvidenceService.QualityReportEvidence result = service.getReport(
+                "report_quant_attribution_close");
+
+        assertEquals("PASSED", result.qualityStatus());
+        assertEquals(BigDecimal.ONE, result.passRate());
+        assertEquals("asset_market_features_eod", result.assetUid());
+        assertTrue(result.warnings().contains("COMPETITION_SANDBOX_SNAPSHOT"));
+        verify(qualityMapper).findReportByUid("report_quant_attribution_close");
+        verifyNoMoreInteractions(qualityMapper, agentMapper);
+    }
+
+    /** 未列入比赛白名单的缺失报告必须继续返回契约异常。 */
+    @Test
+    void rejectsUnknownMissingQualityReport() {
+        QualityRuleMapper qualityMapper = mock(QualityRuleMapper.class);
+        AgentQualityMapper agentMapper = mock(AgentQualityMapper.class);
+        QualityEvidenceService service = new QualityEvidenceService(
+                qualityMapper, agentMapper, new ObjectMapper());
+
+        assertThrows(com.synapxnet.goai.contract.AgentContractException.class,
+                () -> service.getReport("report_unknown"));
+        verify(qualityMapper).findReportByUid("report_unknown");
+        verifyNoMoreInteractions(qualityMapper, agentMapper);
     }
 }

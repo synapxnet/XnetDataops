@@ -70,6 +70,16 @@ mvn -pl dataops-dqm-service,dataops-dgv-service,dataops-tsk-service,dataops-dob-
 
 结果：`BUILD SUCCESS`；7 项新增测试通过，覆盖委托令牌、Schema 排序、血缘环/截断、质量报告和工作流输出/日志控制，0 失败、0 错误。
 
+## GOAI Competition 1.1.0 三场景扩展
+
+比赛环境入口为 `https://goai.xnetdataops.synapxnet.online`，当前解析到比赛专用服务器 `150.109.120.15`。域名和 IP 只属于部署环境，代码必须继续通过配置注入端点。
+
+XnetDataops 当前负责 7 个固定工具：质量报告、Schema、血缘、工作流实例、训练数据集构建、特征回填和数据集验证。训练数据集构建与特征回填属于计划级写步骤，必须校验审批、参数摘要、资源版本、职责分离、幂等和补偿范围；数据集验证始终保持只读。
+
+本轮定向测试：Agent Contract 9 项、Task 4 项、Data Quality 3 项通过。真实 HTTPS Live 已覆盖推荐工作流证据、量化盘后数据集构建和跨域特征回填/验证，并在测试后清理比赛进程状态。
+
+权威工具契约位于 `contracts/goai-tools.v1.json`，由 `D:\synapxnet\scripts\Sync-GoaiCompetitionContracts.cjs` 从 OpenXnet 注册表生成。不得手工删除新增工具或恢复旧的 10 工具清单。
+
 ## 已知限制与后续注意
 
 - 当前仓库没有统一 Flyway 启动器，部署方必须指定唯一 migrator。

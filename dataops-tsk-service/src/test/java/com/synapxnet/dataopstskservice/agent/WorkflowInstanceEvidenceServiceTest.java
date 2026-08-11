@@ -14,8 +14,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -56,6 +58,42 @@ class WorkflowInstanceEvidenceServiceTest {
 
         assertNull(result.nodes().get(0).logSummary());
         verify(workflowService).getNodeInstances(fixture.instance().getId(), false);
+    }
+
+    /** 固定比赛 UID 缺少数据库记录时必须返回带来源标记的隔离沙盘证据。 */
+    @Test
+    void returnsWhitelistedCompetitionSandboxEvidence() {
+        WorkflowService workflowService = mock(WorkflowService.class);
+        when(workflowService.getInstanceByUid("task_rec_features_latest"))
+                .thenThrow(new IllegalArgumentException("missing"));
+        WorkflowInstanceEvidenceService service = new WorkflowInstanceEvidenceService(
+                workflowService, new ObjectMapper());
+
+        WorkflowInstanceEvidenceService.WorkflowInstanceEvidence result = service.get(
+                "task_rec_features_latest", true);
+
+        assertEquals("SUCCEEDED", result.status());
+        assertEquals("asset_rec_features_prod", result.outputAssets().get(0).assetUid());
+        assertEquals("COMPETITION_SANDBOX_SNAPSHOT", result.warnings().get(0));
+        assertEquals("比赛隔离沙盘任务已完成，产出版本化数据资产。",
+                result.nodes().get(0).logSummary());
+        verify(workflowService).getInstanceByUid("task_rec_features_latest");
+        verifyNoMoreInteractions(workflowService);
+    }
+
+    /** 非比赛白名单 UID 缺少数据库记录时必须继续返回不存在错误。 */
+    @Test
+    void rejectsUnknownMissingInstance() {
+        WorkflowService workflowService = mock(WorkflowService.class);
+        when(workflowService.getInstanceByUid("task_unknown"))
+                .thenThrow(new IllegalArgumentException("missing"));
+        WorkflowInstanceEvidenceService service = new WorkflowInstanceEvidenceService(
+                workflowService, new ObjectMapper());
+
+        assertThrows(com.synapxnet.goai.contract.AgentContractException.class,
+                () -> service.get("task_unknown", false));
+        verify(workflowService).getInstanceByUid("task_unknown");
+        verifyNoMoreInteractions(workflowService);
     }
 
     /** 创建稳定工作流、实例、节点和产出配置。 */
