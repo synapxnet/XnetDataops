@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CompetitionDatasetToolController {
 
     private final GovernedApprovalVerifier approvalVerifier;
+    private final QuantitativeDatasetProductService quantitativeDatasetProductService;
     private final Map<String, DatasetState> datasets = new ConcurrentHashMap<>();
     private final GovernedResourceVersionTracker versionTracker = new GovernedResourceVersionTracker();
 
@@ -31,9 +32,13 @@ public class CompetitionDatasetToolController {
      * 创建比赛数据工具 Controller。
      *
      * @param approvalVerifier 通用计划级审批验证器
+     * @param quantitativeDatasetProductService 真实 A 股研究数据产品查询服务
      */
-    public CompetitionDatasetToolController(GovernedApprovalVerifier approvalVerifier) {
+    public CompetitionDatasetToolController(
+            GovernedApprovalVerifier approvalVerifier,
+            QuantitativeDatasetProductService quantitativeDatasetProductService) {
         this.approvalVerifier = approvalVerifier;
+        this.quantitativeDatasetProductService = quantitativeDatasetProductService;
     }
 
     /**
@@ -47,6 +52,13 @@ public class CompetitionDatasetToolController {
                 servletRequest, "dataops.training.dataset.build", body);
         TrainingDatasetArguments arguments = requireTrainingArguments(body.arguments());
         return executeWrite(body, context, () -> {
+            if (quantitativeDatasetProductService.supports(arguments.datasetUid())) {
+                return quantitativeDatasetProductService.buildEvidence(
+                        arguments.datasetUid(),
+                        arguments.workflowInstanceUid(),
+                        arguments.addedFactors(),
+                        arguments.removedFactors());
+            }
             DatasetState state = new DatasetState(
                     arguments.datasetUid(), "TRAINING", arguments.historyYears() * 12,
                     arguments.addedFactors(), arguments.removedFactors(), true);
@@ -97,6 +109,15 @@ public class CompetitionDatasetToolController {
         AgentContract.RequestContext context = context(
                 servletRequest, "dataops.dataset.validation.get", body);
         DatasetValidationArguments arguments = requireValidationArguments(body.arguments());
+        if (quantitativeDatasetProductService.supports(arguments.datasetUid())) {
+            Map<String, Object> data = quantitativeDatasetProductService.validationEvidence(arguments.datasetUid());
+            return AgentContract.success(
+                    data,
+                    context,
+                    "XnetDataOps/quantitative-dataset-validation",
+                    String.valueOf(data.get("artifactDigestSha256")),
+                    startedNanos);
+        }
         DatasetState state = datasets.get(datasetKey(context, arguments.datasetUid()));
         boolean valid = state != null && state.valid();
         Map<String, Object> data = new LinkedHashMap<>();
