@@ -4,12 +4,12 @@
 
 **覆盖数据集成、开发、治理与服务化的开源 DataOps 平台**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-1677ff.svg)](https://www.xnetdataops.synapxnet.cn)
+[![Version](https://img.shields.io/badge/version-1.0.0-1677ff.svg)](http://www.xnetdataops.synapxnet.cn)
 [![Java](https://img.shields.io/badge/Java-17-e76f00.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-6db33f.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/license-MIT-2ea44f.svg)](./LICENSE)
 
-[在线体验](https://www.xnetdataops.synapxnet.cn) · [OpenXnet 开源社区](https://openxnet.synapxnet.com) · [查看许可](./LICENSE)
+[在线体验](http://www.xnetdataops.synapxnet.cn) · [前端仓库 XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) · [OpenXnet 开源社区](https://openxnet.synapxnet.com) · [查看许可](./LICENSE)
 
 </div>
 
@@ -19,7 +19,15 @@
 
 XnetDataops 是由 **SynapXnet 团队**开源的一站式 DataOps 平台，围绕数据从接入、加工、调度到治理、服务和审计的完整生命周期，提供统一的工程化管理能力。
 
-平台将不同数据职能拆分为十二个可独立部署的微服务，既可以整体运行，也可以按企业现有数据架构选择性接入。通过清晰的模块边界，团队能够更容易地扩展连接器、质量规则、调度节点、数据 API 与合规策略。
+本仓库是平台后端，与 [XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) 前端仓库共同组成企业级、多租户、前后端分离系统。平台将不同数据职能拆分为十二个可独立部署的微服务，既可以整体运行，也可以按企业现有数据架构选择性接入。
+
+## 项目优势
+
+- **企业多租户**：以租户、用户、角色和权限边界支撑不同数据团队协作。
+- **前后端分离**：控制台与服务接口独立迭代，便于接入企业门户和现有数据架构。
+- **完整数据链路**：统一覆盖接入、开发、调度、质量、治理、服务与审计。
+- **灵活模块化**：可扩展连接器、质量规则、调度节点、数据 API 与合规策略。
+- **持续更新**：SynapXnet 团队会持续完善连接能力、治理规则、可观测性与文档。
 
 ## 核心能力
 
@@ -96,9 +104,10 @@ mvn -DskipTests package
 
 ### 全栈容器启动
 
-`docker-compose.yml` 会构建同级的 `XnetDataops-web` 前端，并启动 MySQL、Redis 与全部后端服务。首次启动前请检查数据库密码等环境变量并替换默认值。
+`docker-compose.yml` 会构建同级的 `XnetDataops-web` 前端，并启动 MySQL、Redis 与全部后端服务。首次启动前必须配置 `MYSQL_ROOT_PASSWORD` 与 `JWT_SECRET`。
 
 ```bash
+cp .env.example .env
 docker compose up -d --build
 docker compose ps
 ```
@@ -107,8 +116,8 @@ docker compose ps
 
 ## 在线体验
 
-- 访问地址：<https://www.xnetdataops.synapxnet.cn>
-- 演示手机号：`12345678900`
+- 访问地址：<http://www.xnetdataops.synapxnet.cn>
+- 演示手机号：`17870171303`
 - 演示验证码：`000000`
 
 固定验证码仅用于开源项目展示，不应作为生产环境认证方案。

@@ -1,6 +1,8 @@
 package com.synapxnet.dataopsdsmservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.ToString;
 import java.time.LocalDateTime;
 
 @Data
@@ -13,6 +15,8 @@ public class DataSource {
     private Integer port;
     private String databaseName;
     private String username;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ToString.Exclude
     private String encryptedPassword;
     private String connectionParams;
     private String status;

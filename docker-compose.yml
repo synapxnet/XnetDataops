@@ -38,7 +38,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
       - SPRING_DATA_REDIS_HOST=redis
     depends_on:
       - mysql
@@ -55,7 +55,9 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
+      - XNET_DATASOURCE_RECOMMENDATION_PASSWORD=${RECOMMENDATION_DATAOPS_DB_PASSWORD:?RECOMMENDATION_DATAOPS_DB_PASSWORD is required}
+      - XNET_DATASOURCE_ALLOWED_HOSTS=${RECOMMENDATION_PG_HOST:-recommendation-postgres}
     depends_on:
       - mysql
     networks:
@@ -70,7 +72,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
     depends_on:
       - mysql
     networks:
@@ -85,7 +87,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
     depends_on:
       - mysql
     networks:
@@ -100,9 +102,13 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
+      - RECOMMENDATION_PG_URL=jdbc:postgresql://${RECOMMENDATION_PG_HOST:-recommendation-postgres}:${RECOMMENDATION_PG_PORT:-5432}/${RECOMMENDATION_PG_DATABASE:-recommendation}
+      - RECOMMENDATION_DATAOPS_DB_USERNAME=${RECOMMENDATION_DATAOPS_DB_USERNAME:-recommendation_dataops}
+      - RECOMMENDATION_DATAOPS_DB_PASSWORD=${RECOMMENDATION_DATAOPS_DB_PASSWORD:?RECOMMENDATION_DATAOPS_DB_PASSWORD is required}
     depends_on:
       - mysql
+      - recommendation-postgres
     networks:
       - dataops-net
 
@@ -115,7 +121,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
     depends_on:
       - mysql
     networks:
@@ -130,7 +136,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
     depends_on:
       - mysql
     networks:
@@ -145,7 +151,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
     depends_on:
       - mysql
     networks:
@@ -160,7 +166,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
     depends_on:
       - mysql
     networks:
@@ -175,7 +181,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
     depends_on:
       - mysql
     networks:
@@ -190,7 +196,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
     depends_on:
       - mysql
     networks:
@@ -205,7 +211,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/XnetDataops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
     depends_on:
       - mysql
     networks:
@@ -219,7 +225,7 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-dataops123}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
       - MYSQL_DATABASE=XnetDataops
     volumes:
       - mysql-data:/var/lib/mysql
@@ -237,9 +243,30 @@ services:
     networks:
       - dataops-net
 
+  recommendation-postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=${RECOMMENDATION_PG_DATABASE:-recommendation}
+      - POSTGRES_PASSWORD=${RECOMMENDATION_POSTGRES_ADMIN_PASSWORD:?RECOMMENDATION_POSTGRES_ADMIN_PASSWORD is required}
+      - RECOMMENDATION_DATAOPS_DB_PASSWORD=${RECOMMENDATION_DATAOPS_DB_PASSWORD:?RECOMMENDATION_DATAOPS_DB_PASSWORD is required}
+      - RECOMMENDATION_MLOPS_DB_PASSWORD=${RECOMMENDATION_MLOPS_DB_PASSWORD:?RECOMMENDATION_MLOPS_DB_PASSWORD is required}
+    volumes:
+      - recommendation-pg-data:/var/lib/postgresql/data
+      - ./recommendation-data-product/sql/001_raw_schema.sql:/docker-entrypoint-initdb.d/001_raw_schema.sql:ro
+      - ./recommendation-data-product/sql/003_security_roles.sql:/docker-entrypoint-initdb.d/003_security_roles.sql:ro
+      - ./recommendation-data-product/sql/004_provision_app_users.sh:/docker-entrypoint-initdb.d/004_provision_app_users.sh:ro
+    networks:
+      - dataops-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ${RECOMMENDATION_PG_DATABASE:-recommendation}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
 volumes:
   mysql-data:
   redis-data:
+  recommendation-pg-data:
 
 networks:
   dataops-net:

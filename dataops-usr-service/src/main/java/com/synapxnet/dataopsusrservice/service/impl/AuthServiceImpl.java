@@ -1,24 +1,22 @@
 package com.synapxnet.dataopsusrservice.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.synapxnet.dataopsusrservice.entity.User;
 import com.synapxnet.dataopsusrservice.mapper.UserMapper;
 import com.synapxnet.dataopsusrservice.mapper.UserRoleMapper;
 import com.synapxnet.dataopsusrservice.security.jwt.JwtUtil;
 import com.synapxnet.dataopsusrservice.service.AuthService;
-import com.synapxnet.dataopsusrservice.service.SMSCodeService;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+
+    private static final Set<String> DEMO_PHONES = Set.of("17870171303", "15870171303");
+    private static final String DEMO_VERIFICATION_CODE = "000000";
 
     private final UserMapper userMapper;
     private final UserRoleMapper userRoleMapper;
@@ -29,9 +27,6 @@ public class AuthServiceImpl implements AuthService {
     @Resource
     private JwtUtil jwtUtil;
 
-    @Value("${Apps.Name}")
-    private String appName;
-
     public AuthServiceImpl(UserMapper userMapper, UserRoleMapper userRoleMapper) {
         this.userMapper = userMapper;
         this.userRoleMapper = userRoleMapper;
@@ -39,58 +34,22 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Map<String, Object> sendSmsCode(String userPhone) {
+        if (!DEMO_PHONES.contains(userPhone)) {
+            throw new IllegalArgumentException("展示版仅支持已配置账号");
+        }
+
         User user = userMapper.findByPhone(userPhone);
         if (user == null) {
             throw new IllegalArgumentException("User not found");
         }
-
-        String verificationCode = String.format("%06d", new SecureRandom().nextInt(999999));
-
-        stringRedisTemplate.opsForValue().set(
-                "code:" + userPhone,
-                verificationCode,
-                5, TimeUnit.MINUTES
-        );
-
-        try {
-            String[] params = {
-                    appName,
-                    verificationCode,
-                    "5",
-                    userPhone
-            };
-            String smsResponse = SMSCodeService.SMSCodeSend(params);
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> smsResult = objectMapper.readValue(
-                    smsResponse,
-                    new TypeReference<Map<String, Object>>() {}
-            );
-
-            Integer smsCode = (Integer) smsResult.get("code");
-            if (smsCode != null && smsCode == 200) {
-                String requestId = (String) smsResult.get("request_id");
-                Map<String, Object> result = new HashMap<>();
-                result.put("sms_request_id", requestId);
-                return result;
-            } else {
-                String smsMsg = (String) smsResult.get("msg");
-                throw new RuntimeException("短信发送失败: " + smsMsg);
-            }
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("短信发送失败: " + e.getMessage());
-        }
+        return Map.of("demo", true);
     }
 
     @Override
     public Map<String, Object> login(String userPhone, String code) {
-        String storedCode = stringRedisTemplate.opsForValue().get("code:" + userPhone);
-        if (storedCode == null || !storedCode.equals(code)) {
-            throw new IllegalArgumentException("验证码错误或已过期");
+        if (!DEMO_PHONES.contains(userPhone) || !DEMO_VERIFICATION_CODE.equals(code)) {
+            throw new IllegalArgumentException("手机号或验证码错误");
         }
-        stringRedisTemplate.delete("code:" + userPhone);
 
         User user = userMapper.findByPhone(userPhone);
         if (user == null) {
@@ -138,10 +97,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         List<String> roleCodes = userRoleMapper.findRoleCodesByUserId(user.getId());
-        if (roleCodes.isEmpty()) {
-            roleCodes = List.of(user.getUserType());
-        }
-
         Map<String, Object> info = new HashMap<>();
         info.put("userId", user.getId());
         info.put("username", user.getUsername());
@@ -166,7 +121,7 @@ public class AuthServiceImpl implements AuthService {
         if ("admin".equals(user.getUserType()) || roleCodes.contains("ADMIN")) {
             return List.of("AC_100100", "AC_100110", "AC_100120", "AC_100010");
         }
-        return List.of("AC_100100");
+        return roleCodes.isEmpty() ? List.of() : List.of("AC_100100");
     }
 
     private String extractPhoneFromToken(String token) {

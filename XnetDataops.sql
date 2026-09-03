@@ -43,6 +43,46 @@ CREATE TABLE xnet_dataops_usr_user_role (
   INDEX idx_role (role_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
 
+CREATE TABLE xnet_dataops_sys_tenant (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  uid VARCHAR(50) NOT NULL UNIQUE,
+  tenant_name VARCHAR(100) NOT NULL,
+  status TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='租户表';
+
+CREATE TABLE xnet_dataops_sys_department (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  uid VARCHAR(50) NOT NULL UNIQUE,
+  tenant_uid VARCHAR(50) NOT NULL,
+  dept_name VARCHAR(100) NOT NULL,
+  status TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_dataops_department_tenant (tenant_uid)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='部门表';
+
+CREATE TABLE xnet_dataops_sys_team (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  uid VARCHAR(50) NOT NULL UNIQUE,
+  dept_uid VARCHAR(50) NOT NULL,
+  team_name VARCHAR(100) NOT NULL,
+  status TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_dataops_team_department (dept_uid)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='团队表';
+
+CREATE TABLE xnet_dataops_usr_organization_membership (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  tenant_uid VARCHAR(50) NOT NULL,
+  dept_uid VARCHAR(50),
+  team_uid VARCHAR(50),
+  status TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_dataops_user_organization (user_id, tenant_uid, dept_uid, team_uid),
+  INDEX idx_dataops_membership_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户组织成员关系表';
+
 CREATE TABLE xnet_dataops_usr_session (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   user_id BIGINT NOT NULL,
@@ -361,7 +401,7 @@ CREATE TABLE xnet_dataops_dgv_table_tag (
 -- ============================================================
 
 INSERT INTO xnet_dataops_usr_user (uid, username, password, phone, user_type, status)
-VALUES (UUID(), 'admin', '', '17870171303', 'admin', 'active');
+VALUES ('USR-GOAI-OPERATOR', 'goai_operator', '', '17870171303', 'user', 'active');
 
 INSERT INTO xnet_dataops_usr_role (role_name, role_code, description) VALUES
 ('管理员', 'ADMIN', '系统管理员，拥有所有权限'),
@@ -369,10 +409,37 @@ INSERT INTO xnet_dataops_usr_role (role_name, role_code, description) VALUES
 ('数据分析师', 'ANALYST', '数据分析师，可查询和查看数据'),
 ('观察者', 'VIEWER', '只读权限，查看平台状态');
 
--- 获取超级管理员用户ID和ADMIN角色ID，插入关联表
-SET @admin_user_id = (SELECT id FROM xnet_dataops_usr_user WHERE phone = '17870171303' LIMIT 1);
-SET @admin_role_id = (SELECT id FROM xnet_dataops_usr_role WHERE role_code = 'ADMIN' LIMIT 1);
-INSERT INTO xnet_dataops_usr_user_role (user_id, role_id) VALUES (@admin_user_id, @admin_role_id);
+INSERT INTO xnet_dataops_sys_tenant (uid, tenant_name, status)
+VALUES ('TEN-SYNAPXNET', 'SynapXnet', 1);
+
+INSERT INTO xnet_dataops_sys_department (uid, tenant_uid, dept_name, status)
+VALUES ('DEPT-SYNAPXNET-PLATFORM', 'TEN-SYNAPXNET', '智能平台部', 1);
+
+INSERT INTO xnet_dataops_sys_team (uid, dept_uid, team_name, status)
+VALUES ('TEAM-GOAI-INFRA', 'DEPT-SYNAPXNET-PLATFORM', 'GOAI Infrastructure 联合团队', 1);
+
+SET @dataops_competition_user_id = (
+  SELECT id FROM xnet_dataops_usr_user WHERE phone = '17870171303' LIMIT 1
+);
+SET @dataops_developer_role_id = (
+  SELECT id FROM xnet_dataops_usr_role WHERE role_code = 'DEVELOPER' LIMIT 1
+);
+INSERT INTO xnet_dataops_usr_user_role (user_id, role_id, cluster_id)
+VALUES (@dataops_competition_user_id, @dataops_developer_role_id, 0);
+
+INSERT INTO xnet_dataops_usr_organization_membership (
+  user_id,
+  tenant_uid,
+  dept_uid,
+  team_uid,
+  status
+) VALUES (
+  @dataops_competition_user_id,
+  'TEN-SYNAPXNET',
+  'DEPT-SYNAPXNET-PLATFORM',
+  'TEAM-GOAI-INFRA',
+  1
+);
 
 INSERT INTO xnet_dataops_dgv_data_tag (name, tag_type, color, description) VALUES
 ('个人信息', 'sensitivity', '#ff4d4f', '包含个人隐私数据'),
