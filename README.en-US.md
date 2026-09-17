@@ -1,106 +1,71 @@
-## GOAI finals release · v1.3.0
+<!--
+Copyright (C) 2026 Synapxnet. All rights reserved.
+DataOps 版本、接入与复现说明 / DataOps version, access and reproduction guide.
+Author: maoyo | Department: 研发部 | Date: 2026-09-18 | Version: 1.3.0
+Maintainer: maoyo
+-->
 
-**[Release and source downloads](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0) · [GOAI branch](https://github.com/synapxnet/XnetDataops/tree/GOAI-Competition) · [Matching frontend](https://github.com/synapxnet/XnetDataops-web/releases/tag/v1.3.0) · [OpenXnet installer](https://github.com/synapxnet/OpenXnet/releases/tag/v1.3.0)**
-
-This default `display` branch retains historical showcase code. The GOAI release badge links to the separate finals release; it does not claim that this branch or deployed services were upgraded. Download the pinned version from the release page.
-
-Version 1.3.0 integrates organization/resource governance, DAG persistence, approval digests, resource-version checks, and the resident Agent integration contract. All 14 Maven reactor items built; 76 tests passed and one real-database test was conditionally skipped. Competition-state backfill is not production bulk backfill, and one-time migration is not continuous checkpointing.
-
-See the pinned [source delivery guide](https://github.com/synapxnet/XnetDataops/blob/ac638e05b02f69e4085a685e6e08ea5d63723f6c/docs/GOAI-V1.3.0-SOURCE-DELIVERY.md) for build instructions, dependencies and verification limits. This documentation update does not move the release tag or redeploy services.
-
----
-
-<div align="center">
-
-[简体中文](./README.md) | **English** | [日本語](./README.ja-JP.md)
-
-# XnetDataops
-
-**Open-source DataOps for integration, development, governance, and data services**
+# XnetDataOps
 
 [![GOAI release](https://img.shields.io/badge/GOAI%20release-1.3.0-1677ff.svg)](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0)
-[![Java](https://img.shields.io/badge/Java-17-e76f00.svg)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-6db33f.svg)](https://spring.io/projects/spring-boot)
-[![License](https://img.shields.io/badge/license-MIT-2ea44f.svg)](./LICENSE)
 
-[Live Demo](https://www.xnetdataops.synapxnet.cn) · [Frontend: XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) · [OpenXnet](https://openxnet.synapxnet.com) · [License](./LICENSE)
+[简体中文](README.md) · [English](README.en-US.md) · [日本語](README.ja-JP.md)
 
-</div>
+DataOps backend for ingestion, development, scheduling, quality, lineage, assets, audit and governed collaboration.
 
-> The images below are historical showcase screenshots, not the current v1.3.0 UI or acceptance evidence.
+**[Pinned v1.3.0 source](https://github.com/synapxnet/XnetDataops/tree/v1.3.0) · [Release/downloads](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0) · [Matching frontend](https://github.com/synapxnet/XnetDataops-web/tree/v1.3.0) · [OpenXnet installer](https://github.com/synapxnet/OpenXnet/releases/tag/v1.3.0)**
 
-![XnetDataops overview](./docs/images/xnetdataops-overview.png)
+This default `display` branch retains historical showcase code. The GOAI release badge links to a separate release: clone the pinned tag below to reproduce it. README-only changes do not move that tag, replace source archives or redeploy services.
 
-## Product Tour (historical screenshots)
+## Current demo and sign-in
 
-| Demo login | Data source configuration |
-| --- | --- |
-| ![Demo login](./docs/images/xnetdataops-login.png) | ![Data sources](./docs/images/xnetdataops-datasource.png) |
-| Data integration | SQL workbench |
-| ![Integration](./docs/images/xnetdataops-integration.png) | ![SQL workbench](./docs/images/xnetdataops-workbench.png) |
-| Workflow scheduling | Data quality |
-| ![Workflows](./docs/images/xnetdataops-workflows.png) | ![Data quality](./docs/images/xnetdataops-quality.png) |
-| Data lineage | Data APIs |
-| ![Lineage](./docs/images/xnetdataops-lineage.png) | ![Data APIs](./docs/images/xnetdataops-api.png) |
-| Data masking | Observability |
-| ![Masking](./docs/images/xnetdataops-masking.png) | ![Observability](./docs/images/xnetdataops-observability.png) |
-| Audit | About |
-| ![Audit](./docs/images/xnetdataops-audit.png) | ![About](./docs/images/xnetdataops-about.png) |
+- Staging: [https://goai.xnetdataops.synapxnet.online/](https://goai.xnetdataops.synapxnet.online/); [login](https://goai.xnetdataops.synapxnet.online/#/auth/login).
+- Public demo phone: **`17870171303`**. Six-digit demo verification code: **`000000`**. These are for the authorized demo environment only, not password-based login.
+- Verified on 2026-09-18: sign-in and read-only identity/status succeeded; user `goai_operator`, role `DEVELOPER`; resident platform `dataops`, Agent `1.3.0`, `ONLINE`, model/tools configured. This check did not execute business changes or a complete cross-platform run.
 
-## Overview
+The [current authentication implementation](https://github.com/synapxnet/XnetDataops/blob/v1.3.0/dataops-usr-service/src/main/java/com/synapxnet/dataopsusrservice/service/impl/AuthServiceImpl.java) accepts pre-provisioned demo identities. The send-code endpoint returns a demo marker; **it does not deliver real SMS**. Use the demo code above directly. Self-registration is not implemented and QR login is unavailable. Production deployments must replace demo authentication and provision their own users and organization permissions.
 
-XnetDataops is an open-source, end-to-end DataOps platform maintained by the **SynapXnet team**. It manages the data lifecycle from source onboarding and transformation to scheduling, quality, governance, APIs, observability, and audit.
+This code authenticates the DataOps website only. It is **not an AgentTeams access code or Live execution authorization**; those belong to separate OpenXnet workspace controls. No model API keys or internal credentials are published here.
 
-This backend repository and [XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) form an enterprise-grade, multi-tenant, frontend/backend-separated system. Twelve modular services can be deployed together or integrated by domain.
+## API and resident Agent
 
-## Highlights
+| Purpose | Same-origin browser path | Meaning |
+|---|---|---|
+| User/auth | `/api`, including `/api/login` and `/api/user/info` | Gateway maps to USR `/api/usr`; do not append `/usr` again |
+| Business services | `/dsm`, `/dim`, `/ddv`, `/tsk`, `/dqm`, `/dgv`, `/das`, `/dap`, `/dms`, `/dob`, `/dau` | Organization/team/resource authorization required |
+| Governance workbench | `/dgv/governance/workbench` | Current deployment is a separate read-only route |
+| Resident Agent | `/api/resident/v1/`; status: `/api/resident/v1/status` | Platform sign-in and server-side capability checks |
 
-- Enterprise multi-tenancy with user, role, team, and data boundaries.
-- Complete flow across integration, development, scheduling, quality, governance, and delivery.
-- Independent frontend and backend deployment.
-- Extensible connectors, quality rules, scheduling nodes, APIs, and policies.
-- Continuous improvements from the SynapXnet team.
+Runtime configuration was verified as `VITE_GLOB_API_URL=/api`. Anonymous resident/organization/workbench requests are rejected. An unauthenticated `/api/user/info` request can return HTTP 200 with a business error: inspect `code`, not HTTP status alone.
 
-## Modules
+The [resident service](https://github.com/synapxnet/OpenXnet/tree/v1.3.0/services/platform-resident-agent) runs separately from Java services and AgentTeams. It provides local chat, allowed tools and task views. Its current handoff status is `handoffAvailable=false / PENDING_INTEGRATION`; automatic resident-to-cross-platform handoff must not be advertised as available. Cross-platform demos use the existing OpenXnet/AgentTeams integration. Internal `/health` is not independently exposed by the reviewed public gateway; use the authenticated status endpoint.
 
-| Module | Service | Responsibility |
-| --- | --- | --- |
-| DSM | `dataops-dsm-service` | Data source connections and health |
-| DIM | `dataops-dim-service` | Batch/incremental synchronization, mappings, and logs |
-| DDV | `dataops-ddv-service` | SQL workbench, scripts, saved queries, and history |
-| TSK | `dataops-tsk-service` | DAG workflows, dependencies, instances, and execution state |
-| DQM | `dataops-dqm-service` | Quality rules, reports, and alerts |
-| DGV | `dataops-dgv-service` | Metadata catalog, columns, lineage, and tags |
-| DAS | `dataops-das-service` | Data assets, classification, statistics, and access records |
-| DAP | `dataops-dap-service` | Data APIs, keys, rate limits, and call logs |
-| DMS | `dataops-dms-service` | Masking rules, policies, and execution logs |
-| DOB | `dataops-dob-service` | Freshness, volume, schema monitoring, and SLA |
-| DAU | `dataops-dau-service` | Audit logs, data changes, and compliance reports |
-| USR | `dataops-usr-service` | Authentication, users, roles, and access control |
+## Version scope and evidence
 
-## Quick Start
+The repository has 12 business services plus the shared agent-contract module. It includes governance scope checks, DAG persistence, API-key controls, approval digests, idempotency and resource-version checks. All 14 Maven reactor items built, 76 tests passed and one real-database test was conditionally skipped. Competition-state backfill is not production bulk backfill; one-time migration is not continuous checkpointing.
+
+See the [pinned source delivery guide](https://github.com/synapxnet/XnetDataops/blob/v1.3.0/docs/GOAI-V1.3.0-SOURCE-DELIVERY.md). Source release, documentation changes and read-only checks do not prove all deployed components match one source commit.
+
+## Build the pinned version
 
 ```bash
-mvn -DskipTests package
-cp .env.example .env
-docker compose up -d --build
-docker compose ps
+git clone --branch v1.3.0 --single-branch https://github.com/synapxnet/XnetDataops.git
+cd XnetDataops
+mvn -B -ntp clean verify
 ```
 
-Requirements: JDK 17+, Maven 3.9+, Docker Compose, MySQL 8.x, and Redis 7.x.
+Requires **JDK 17 and Maven 3.9.11**. Stack: Spring Boot 3.4.6, MyBatis 3.0.4, MySQL and Redis; the optional recommendation data product has additional PostgreSQL/data dependencies.
 
-The idempotent showcase dataset is in `sql/xnet_dataops_demo.sql`. It uses non-routable addresses and invalid placeholder credentials, and preserves user-created records.
+Before starting services, supply environment-specific database/Redis addresses, independent secrets and JWT configuration using each module's `application.properties`. Review `sql/xnet_dataops_ddl.sql` and `database/migrations`. Configure explicit organization/resource scopes through `config/governance-workbench.example.properties` and governed interfaces through `config/finals-agent.example.properties`; empty scopes grant no access. The resident service needs separate identity/model/tool/workspace configuration; its declaration is not an installable Kubernetes CRD.
 
-## Demo
+The bundled Compose/Nginx files are historical development topology, not a verified one-command finals deployment. The old frontend Dockerfile still uses Node 18, conflicting with the current frontend's Node 20.10+ requirement. Network targets, organization checks and precise governance routes require adjustment. Build the matching frontend by its versioned instructions and validate deployment configuration in isolation; do not apply the generic files over an existing environment.
 
-- URL: <https://www.xnetdataops.synapxnet.cn>
-- Phone: `12345678900`
-- Verification code: `000000`
+## Historical image
 
-The fixed code is only for the public showcase. Production must use secure authentication.
+This image shows an earlier showcase layout, not the current v1.3.0 UI or acceptance evidence.
 
-## Community and License
+![Historical DataOps overview](docs/images/xnetdataops-overview.png)
 
-XnetDataops is part of [OpenXnet](https://openxnet.synapxnet.com). Issues and pull requests are welcome.
+## License and contributions
 
-Released under the [MIT License](./LICENSE). Copyright © 2026 SynapXnet.
+See [LICENSE](LICENSE) and component-specific notices. The frontend is based on [Vue Vben Admin](https://github.com/vbenjs/vue-vben-admin), retaining upstream attribution and licensing. Include a version, reproduction steps and redacted evidence in Issues/PRs; never include private credentials.

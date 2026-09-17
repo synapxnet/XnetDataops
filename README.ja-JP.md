@@ -1,106 +1,71 @@
-## GOAI 決勝リリース · v1.3.0
+<!--
+Copyright (C) 2026 Synapxnet. All rights reserved.
+DataOps 版本、接入与复现说明 / DataOps version, access and reproduction guide.
+Author: maoyo | Department: 研发部 | Date: 2026-09-18 | Version: 1.3.0
+Maintainer: maoyo
+-->
 
-**[リリースとソースのダウンロード](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0) · [GOAI ブランチ](https://github.com/synapxnet/XnetDataops/tree/GOAI-Competition) · [対応するフロントエンド](https://github.com/synapxnet/XnetDataops-web/releases/tag/v1.3.0) · [OpenXnet インストーラー](https://github.com/synapxnet/OpenXnet/releases/tag/v1.3.0)**
-
-既定の `display` ブランチは過去の展示コードを保持します。GOAI release バッジは別の決勝リリースを示し、このブランチや稼働中のサービス全体が更新済みであることを意味しません。固定版はリリースページから取得してください。
-
-v1.3.0 は組織・リソース範囲のガバナンス、DAG 永続化、承認ダイジェスト、リソース版の検証、常駐 Agent の接続契約を統合します。Maven 14 Reactor のビルドと 76 件のテストが成功し、実データベースを必要とする 1 件は条件付きスキップです。競技状態の更新は実運用データの一括バックフィルではなく、一度限りの移行は継続的チェックポイントではありません。
-
-ビルド、依存関係、検証範囲は [固定版ソース納品ガイド](https://github.com/synapxnet/XnetDataops/blob/ac638e05b02f69e4085a685e6e08ea5d63723f6c/docs/GOAI-V1.3.0-SOURCE-DELIVERY.md) を参照してください。README の更新でタグの移動やサービスの再デプロイは行いません。
-
----
-
-<div align="center">
-
-[简体中文](./README.md) | [English](./README.en-US.md) | **日本語**
-
-# XnetDataops
-
-**データ統合、開発、ガバナンス、サービス化を支えるオープンソース DataOps**
+# XnetDataOps
 
 [![GOAI release](https://img.shields.io/badge/GOAI%20release-1.3.0-1677ff.svg)](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0)
-[![Java](https://img.shields.io/badge/Java-17-e76f00.svg)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-6db33f.svg)](https://spring.io/projects/spring-boot)
-[![License](https://img.shields.io/badge/license-MIT-2ea44f.svg)](./LICENSE)
 
-[オンラインデモ](https://www.xnetdataops.synapxnet.cn) · [フロントエンド: XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) · [OpenXnet](https://openxnet.synapxnet.com) · [ライセンス](./LICENSE)
+[简体中文](README.md) · [English](README.en-US.md) · [日本語](README.ja-JP.md)
 
-</div>
+データ接続、開発、スケジューリング、品質、リネージ、資産、監査、受控協調を担うバックエンドです。
 
-> 以下の画像は過去の展示版です。v1.3.0 の現在の UI や今回の検証結果を示すものではありません。
+**[v1.3.0 固定ソース](https://github.com/synapxnet/XnetDataops/tree/v1.3.0) · [リリースとダウンロード](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0) · [対応フロントエンド](https://github.com/synapxnet/XnetDataops-web/tree/v1.3.0) · [OpenXnet インストーラー](https://github.com/synapxnet/OpenXnet/releases/tag/v1.3.0)**
 
-![XnetDataops 概要](./docs/images/xnetdataops-overview.png)
+既定の `display` は過去の展示コードを保持します。GOAI release バッジは別の決勝リリースを示します。再現には以下の固定タグを取得してください。README の変更でタグ、ソース ZIP、稼働中サービスは更新されません。
 
-## 画面プレビュー（過去のバージョン）
+## 現在のデモとログイン
 
-| デモログイン | データソース設定 |
-| --- | --- |
-| ![デモログイン](./docs/images/xnetdataops-login.png) | ![データソース](./docs/images/xnetdataops-datasource.png) |
-| データ統合 | SQL ワークベンチ |
-| ![データ統合](./docs/images/xnetdataops-integration.png) | ![SQL ワークベンチ](./docs/images/xnetdataops-workbench.png) |
-| ワークフロー | データ品質 |
-| ![ワークフロー](./docs/images/xnetdataops-workflows.png) | ![データ品質](./docs/images/xnetdataops-quality.png) |
-| データリネージ | データ API |
-| ![リネージ](./docs/images/xnetdataops-lineage.png) | ![データ API](./docs/images/xnetdataops-api.png) |
-| データマスキング | 可観測性 |
-| ![マスキング](./docs/images/xnetdataops-masking.png) | ![可観測性](./docs/images/xnetdataops-observability.png) |
-| 監査 | プロジェクト情報 |
-| ![監査](./docs/images/xnetdataops-audit.png) | ![プロジェクト情報](./docs/images/xnetdataops-about.png) |
+- Staging: [https://goai.xnetdataops.synapxnet.online/](https://goai.xnetdataops.synapxnet.online/)、[ログイン画面](https://goai.xnetdataops.synapxnet.online/#/auth/login)。
+- 公開デモ電話番号：**`17870171303`**。6 桁のデモ確認コード：**`000000`**。許可されたデモ環境専用であり、パスワードログインではありません。
+- 2026-09-18 にログインと読み取りのみの身份・常駐状態確認が成功しました。ユーザーは `goai_operator`、ロールは `DEVELOPER`、常駐プラットフォームは `dataops`、Agent は `1.3.0 / ONLINE`、モデル・ツールは設定済みです。業務変更や完全なクロスプラットフォーム実行は検証していません。
 
-## 概要
+[現在の認証実装](https://github.com/synapxnet/XnetDataops/blob/v1.3.0/dataops-usr-service/src/main/java/com/synapxnet/dataopsusrservice/service/impl/AuthServiceImpl.java)は事前登録のデモ身份のみを受け付けます。コード送信 API はデモ印を返し、**実際の SMS は送信しません**。上記コードを直接使用してください。自己登録と QR ログインは未接続です。実運用にはデモ認証を置き換え、自社ユーザーと組織権限を設定する必要があります。
 
-XnetDataops は **SynapXnet チーム**が公開するエンドツーエンド DataOps プラットフォームです。データソース登録、加工、スケジューリング、品質、ガバナンス、API、可観測性、監査までを統合管理します。
+このコードは DataOps の Web ログイン専用です。**AgentTeams アクセスコードや Live 実行許可とは異なります**。それらは OpenXnet のワークスペースごとに別途設定します。モデル API キーや内部資格情報は掲載しません。
 
-本バックエンドと [XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) は、企業向けマルチテナント、フロントエンド・バックエンド分離システムを構成します。12 個のサービスは一括またはモジュール単位で導入できます。
+## API と常駐 Agent
 
-## 特長
+| 用途 | ブラウザーの同一オリジンパス | 範囲 |
+|---|---|---|
+| 認証・身份 | `/api`（`/api/login`、`/api/user/info`） | ゲートウェイで USR `/api/usr` に転送。ブラウザーで `/usr` を重複追加しません |
+| 業務サービス | `/dsm`、`/dim`、`/ddv`、`/tsk`、`/dqm`、`/dgv`、`/das`、`/dap`、`/dms`、`/dob`、`/dau` | 組織・チーム・リソース権限が必要 |
+| ガバナンス | `/dgv/governance/workbench` | 現在は独立した読み取り専用ルート |
+| 常駐 Agent | `/api/resident/v1/`、状態は `/api/resident/v1/status` | プラットフォーム認証とサーバー側権限判定 |
 
-- ユーザー、ロール、チーム、データ境界を備えた企業向けマルチテナント。
-- 統合、開発、スケジューリング、品質、ガバナンス、提供までの一貫したフロー。
-- フロントエンドとバックエンドを独立配備。
-- コネクター、品質ルール、タスクノード、API、ポリシーを拡張可能。
-- SynapXnet チームによる継続的な更新。
+実行時設定 `VITE_GLOB_API_URL=/api` を確認済みです。未認証の常駐状態、組織ツリー、ガバナンス読み取りは拒否されます。`/api/user/info` は HTTP 200 内に業務エラーを返す場合があるため、HTTP だけでなく `code` も確認してください。
 
-## モジュール
+[共通常駐サービス](https://github.com/synapxnet/OpenXnet/tree/v1.3.0/services/platform-resident-agent)は Java 業務プロセスや AgentTeams とは独立しています。プラットフォーム内チャット、許可ツール、タスク表示を提供します。現在の移譲状態は `handoffAvailable=false / PENDING_INTEGRATION` であり、常駐 Agent からの自動クロスプラットフォーム移譲は未接続です。クロスプラットフォームデモは既存の OpenXnet/AgentTeams 接続を使用します。内部 `/health` は確認した公開ゲートウェイで独立公開されていないため、認証済みの状態 API を利用します。
 
-| モジュール | サービス | 主な機能 |
-| --- | --- | --- |
-| DSM | `dataops-dsm-service` | データソース接続とヘルスチェック |
-| DIM | `dataops-dim-service` | 全量・増分同期、マッピング、ログ |
-| DDV | `dataops-ddv-service` | SQL、スクリプト、保存クエリ、履歴 |
-| TSK | `dataops-tsk-service` | DAG、依存関係、実行インスタンス |
-| DQM | `dataops-dqm-service` | 品質ルール、レポート、アラート |
-| DGV | `dataops-dgv-service` | メタデータ、カラム、リネージ、タグ |
-| DAS | `dataops-das-service` | データ資産、分類、統計、アクセス履歴 |
-| DAP | `dataops-dap-service` | データ API、キー、流量制御、呼出ログ |
-| DMS | `dataops-dms-service` | マスキングルール、ポリシー、実行履歴 |
-| DOB | `dataops-dob-service` | 鮮度、件数、スキーマ監視、SLA |
-| DAU | `dataops-dau-service` | 監査、データ変更、コンプライアンス |
-| USR | `dataops-usr-service` | 認証、ユーザー、ロール、アクセス制御 |
+## 能力と検証範囲
 
-## クイックスタート
+12 業務サービスと agent-contract モジュールを含み、組織・資源範囲、DAG 永続化、API キー制御、承認ダイジェスト、冪等性、資源版の照合を扱います。Maven 14 Reactor が成功し、76 テスト成功、実 DB を必要とする 1 件は条件付きスキップです。競技状態の回填は本番データの一括更新ではなく、一度限りの状態移行は継続的チェックポイントではありません。
+
+詳細は [固定版納品ガイド](https://github.com/synapxnet/XnetDataops/blob/v1.3.0/docs/GOAI-V1.3.0-SOURCE-DELIVERY.md) を参照してください。ソース公開、README 更新、今回の読み取り検証は、稼働中の全コンポーネントが同じコミットであることの証明ではありません。
+
+## 固定版ビルド
 
 ```bash
-mvn -DskipTests package
-cp .env.example .env
-docker compose up -d --build
-docker compose ps
+git clone --branch v1.3.0 --single-branch https://github.com/synapxnet/XnetDataops.git
+cd XnetDataops
+mvn -B -ntp clean verify
 ```
 
-JDK 17+、Maven 3.9+、Docker Compose、MySQL 8.x、Redis 7.x が必要です。
+**JDK 17、Maven 3.9.11** が必要です。Spring Boot 3.4.6、MyBatis 3.0.4、MySQL、Redis を使用します。推奨データ製品の拡張には PostgreSQL などの追加依存があります。
 
-再実行可能な演示データは `sql/xnet_dataops_demo.sql` にあります。到達不能なデモ用アドレスと無効なプレースホルダーのみを使用し、ユーザー作成データを保持します。
+起動前に各 `application.properties` の DB/Redis 宛先、独立資格情報、JWT キーを設定し、`sql/xnet_dataops_ddl.sql` と `database/migrations` を審査してください。`config/governance-workbench.example.properties` の組織・資源範囲は空の場合許可しません。受控 API は `config/finals-agent.example.properties` を参照します。常駐サービスの身份・モデル・ツール・ワークスペースも個別設定が必要で、配置宣言は直接インストールできる Kubernetes CRD ではありません。
 
-## デモ
+Compose/Nginx は過去の開発構成であり、検証済みの一括決勝デプロイではありません。旧フロントエンド Dockerfile は Node 18 のままで、現在の Node 20.10+ 要件と一致しません。ネットワーク、組織認証、ガバナンス専用ルートも環境に合わせて調整してください。対応フロントエンドの固定版手順でビルドし、隔離環境で構成を検証してから導入します。
 
-- URL: <https://www.xnetdataops.synapxnet.cn>
-- 電話番号: `12345678900`
-- 確認コード: `000000`
+## 過去の画像
 
-固定確認コードは公開デモ専用です。本番環境では安全な認証方式を使用してください。
+以下は以前の展示版です。現在の v1.3.0 UI や今回の検証証拠ではありません。
 
-## コミュニティとライセンス
+![過去の DataOps 概要](docs/images/xnetdataops-overview.png)
 
-XnetDataops は [OpenXnet](https://openxnet.synapxnet.com) の一部です。
+## ライセンスと貢献
 
-[MIT License](./LICENSE) の下で公開されています。Copyright © 2026 SynapXnet.
+[LICENSE](LICENSE) と各コンポーネントの宣言を参照してください。フロントエンドは [Vue Vben Admin](https://github.com/vbenjs/vue-vben-admin) に基づき、上流の著作権とライセンスを保持します。Issues/PR には版、再現手順、秘匿化した証拠を添え、実資格情報は含めないでください。
