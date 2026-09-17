@@ -11,9 +11,9 @@ Maintainer: maoyo
 
 数据工程与治理平台后端，提供数据接入、开发、调度、质量、血缘、资产及审计接口，并接入受控跨平台协作。
 
-**[v1.3.0 固定源码](https://github.com/synapxnet/XnetDataops/tree/v1.3.0) · [发布与下载](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0) · [配套前端 v1.3.0](https://github.com/synapxnet/XnetDataops-web/tree/v1.3.0) · [OpenXnet 安装包](https://github.com/synapxnet/OpenXnet/releases/tag/v1.3.0)**
+**[v1.3.0 固定源码](https://github.com/synapxnet/XnetDataops/tree/v1.3.0) · [发布页](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0) · [源码 ZIP](https://github.com/synapxnet/XnetDataops/releases/download/v1.3.0/XnetDataops-v1.3.0-source.zip) · [配套前端 v1.3.0](https://github.com/synapxnet/XnetDataops-web/tree/v1.3.0) · [OpenXnet 安装包](https://github.com/synapxnet/OpenXnet/releases/tag/v1.3.0)**
 
-当前 GOAI 分支包含发布后的 README 修订。复现请固定到 `v1.3.0` 标签；原源码 ZIP 和标签没有移动，包内 README 仍是冻结时内容。
+复现统一使用 `v1.3.0` 标签或本页对应的源码 ZIP；当前版本说明随源码提供。本次发布文档整理不会重新部署线上服务。
 
 ## 当前演示入口与登录
 
@@ -52,7 +52,7 @@ Maintainer: maoyo
 - Maven **14 个 Reactor 构建成功**（含父项目），**76 项测试通过、1 项真实数据库测试条件跳过**。
 - TSK 比赛状态回填不是企业生产数据的真实批量回填；一次性资源迁移也不是持续检查点。
 
-完整来源、测试和限制见 [v1.3.0 源码交付说明](https://github.com/synapxnet/XnetDataops/blob/v1.3.0/docs/GOAI-V1.3.0-SOURCE-DELIVERY.md)。源码发布、README 更新和本次只读接入核验都不意味着线上所有组件已重新部署到同一个源码提交。
+完整来源、测试和限制见 [v1.3.0 源码交付说明](https://github.com/synapxnet/XnetDataops/blob/v1.3.0/docs/GOAI-V1.3.0-SOURCE-DELIVERY.md)。源码发布、README 更新和本次只读接入核验都不意味着线上所有组件已重新部署到同一个源码提交。 构建与测试对应[程序验证基线 ac638e05](https://github.com/synapxnet/XnetDataops/commit/ac638e05b02f69e4085a685e6e08ea5d63723f6c)；之后的发布对齐只更新 README，程序文件与该基线一致。
 
 ## 固定版本构建
 
