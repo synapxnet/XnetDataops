@@ -1,10 +1,12 @@
+> GOAI 决赛版本 **1.3.0**：源码范围、构建验证与运行边界见 [交付说明](docs/GOAI-V1.3.0-SOURCE-DELIVERY.md)。
+
 <div align="center">
 
 # XnetDataops
 
 **覆盖数据集成、开发、治理与服务化的开源 DataOps 平台**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-1677ff.svg)](http://www.xnetdataops.synapxnet.cn)
+[![Version](https://img.shields.io/badge/version-1.3.0-1677ff.svg)](http://www.xnetdataops.synapxnet.cn)
 [![Java](https://img.shields.io/badge/Java-17-e76f00.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-6db33f.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/license-MIT-2ea44f.svg)](./LICENSE)

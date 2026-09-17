@@ -3,6 +3,7 @@ package com.synapxnet.dataopstskservice.controller;
 import com.synapxnet.dataopstskservice.common.Result;
 import com.synapxnet.dataopstskservice.entity.*;
 import com.synapxnet.dataopstskservice.service.WorkflowService;
+import com.synapxnet.dataopstskservice.dto.WorkflowDagRequest;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
@@ -44,13 +45,10 @@ public class WorkflowController {
     @GetMapping("/workflows/{id}/edges")
     public Result<List<WorkflowEdge>> getEdges(@PathVariable("id") Long id) { return Result.success(workflowService.getEdges(id)); }
 
+    /** 使用强类型请求保存依赖图，防止 Map 实体强转失败。 Save a typed graph request without unsafe Map-to-entity casts. */
     @PutMapping("/workflows/{id}/dag")
-    public Result<Void> saveDAG(@PathVariable("id") Long id, @RequestBody Map<String, Object> dagData) {
-        @SuppressWarnings("unchecked")
-        List<WorkflowNode> nodes = (List<WorkflowNode>) dagData.get("nodes");
-        @SuppressWarnings("unchecked")
-        List<WorkflowEdge> edges = (List<WorkflowEdge>) dagData.get("edges");
-        workflowService.saveDAG(id, nodes, edges);
+    public Result<Void> saveDAG(@PathVariable("id") Long id, @RequestBody WorkflowDagRequest dagData) {
+        workflowService.saveDAG(id, dagData.nodes(), dagData.edges());
         return Result.success();
     }
 

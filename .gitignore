@@ -1,0 +1,9 @@
+# Local build output and private runtime configuration
+**/target/
+.idea/
+*.log
+.env
+.env.*
+!.env.example
+*.local
+**/application-local.properties

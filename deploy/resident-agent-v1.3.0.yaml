@@ -1,0 +1,21 @@
+# Copyright (C) 2026 Synapxnet. All rights reserved.
+# Synapxnet Proprietary and Confidential. INTERNAL.
+# Author: maoyo | Department: 研发部 | Date: 2026-09-15 | Version: 1.3.0
+apiVersion: openxnet.synapxnet.com/v1
+kind: ResidentAgentDeployment
+metadata:
+  name: dataops-resident-v130
+spec:
+  agentId: agt-dataops-resident-v130
+  platform: dataops
+  contractVersion: finals-v1.3.0
+  controlPlaneRef: ${OPENXNET_CONTROL_PLANE_URL}
+  agentTeamsRef: ${OPENXNET_AGENTTEAMS_URL}
+  credentialRef: credential://resident/dataops/v130
+  allowedTools:
+    - dataops.quality.report.get
+    - dataops.schema.snapshot.get
+    - dataops.lineage.get
+    - dataops.workflow.instance.get
+    - dataops.dataset.validation.get
+  writeAccess: false

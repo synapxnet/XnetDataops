@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
@@ -17,10 +18,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.ok(Result.error(400, e.getMessage()));
     }
 
+    /** 保留身份与服务不可用的真实HTTP状态。 Preserve actual authentication and service-unavailable HTTP statuses. */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Result<?>> handleStatus(ResponseStatusException error) {
+        return ResponseEntity.status(error.getStatusCode()).body(Result.error(error.getStatusCode().value(), error.getReason()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Result<?>> handleException(Exception e) {
         log.error("Internal error: {}", e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Result.error(500, "Internal server error: " + e.getMessage()));
+                .body(Result.error(500, "服务暂不可用，请稍后重试"));
     }
 }

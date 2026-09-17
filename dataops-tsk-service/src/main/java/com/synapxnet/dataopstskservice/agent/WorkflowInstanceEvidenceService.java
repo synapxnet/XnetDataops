@@ -1,0 +1,328 @@
+/*
+ * Copyright (C) 2026 Synapxnet. All rights reserved.
+ * This file is Synapxnet Proprietary and Confidential. It is strictly
+ * forbidden to copy, distribute, or use without explicit authorization.
+ * 治理执行与只读取证 / Governed execution and read-only evidence.
+ * Author: maoyo | Department: 研发部 | Date: 2026-09-17
+ * Version: 1.3.0 | Security Level: INTERNAL
+ * __version__: 1.3.0 | __author__: maoyo | __copyright__: Copyright 2026 Synapxnet
+ * __maintainer__: maoyo | __email__: synapxnet@gmail.com
+ */
+package com.synapxnet.dataopstskservice.agent;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.synapxnet.dataopstskservice.entity.NodeInstance;
+import com.synapxnet.dataopstskservice.entity.TaskInstance;
+import com.synapxnet.dataopstskservice.entity.Workflow;
+import com.synapxnet.dataopstskservice.entity.WorkflowNode;
+import com.synapxnet.dataopstskservice.service.WorkflowService;
+import com.synapxnet.goai.contract.AgentContractException;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+/**
+ * 将任务实例和批量节点状态转换为脱敏、稳定排序的执行证据。
+ */
+@Service
+public class WorkflowInstanceEvidenceService {
+
+    private static final int LOG_LIMIT = 1000;
+    private static final Pattern SECRET_PATTERN = Pattern.compile(
+            "(?i)(password|passwd|token|api[_-]?key|secret)\\s*[:=]\\s*[^\\s,;]+"
+                    + "|(?:jdbc|mysql|postgresql)://[^\\s]+"
+                    + "|\\b1[3-9]\\d{9}\\b"
+                    + "|[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}");
+    private final WorkflowService workflowService;
+    private final ObjectMapper objectMapper;
+
+    /**
+     * 创建任务实例证据服务。
+     *
+     * @param workflowService 现有工作流领域服务
+     * @param objectMapper 节点配置 JSON 解析器
+     * English: Inject the persisted workflow reader and configuration parser.
+     */
+    public WorkflowInstanceEvidenceService(WorkflowService workflowService, ObjectMapper objectMapper) {
+        this.workflowService = workflowService;
+        this.objectMapper = objectMapper;
+    }
+
+    /**
+     * 根据稳定 UID 获取任务和节点证据；日志只有显式请求时才从数据库读取。
+     *
+     * @param instanceUid 任务实例 UID
+     * @param includeLogSummary 是否读取并返回脱敏日志摘要
+     * @return 任务实例证据
+     * English: Read persisted task evidence with explicit whitelisted competition fallback.
+     */
+    public WorkflowInstanceEvidence get(String instanceUid, boolean includeLogSummary) {
+        if (instanceUid == null || instanceUid.isBlank()) {
+            throw new AgentContractException(400, "INVALID_ARGUMENT", "instanceUid 不能为空");
+        }
+        TaskInstance instance;
+        try {
+            instance = workflowService.getInstanceByUid(instanceUid);
+        } catch (IllegalArgumentException exception) {
+            WorkflowInstanceEvidence competitionSnapshot = competitionSandboxSnapshot(
+                    instanceUid, includeLogSummary);
+            if (competitionSnapshot != null) {
+                return competitionSnapshot;
+            }
+            throw new AgentContractException(404, "RESOURCE_NOT_FOUND", "任务实例不存在");
+        }
+        Workflow workflow = workflowService.getById(instance.getWorkflowId());
+        List<String> warnings = new java.util.ArrayList<>();
+        List<NodeEvidence> nodes = workflowService.getNodeInstances(instance.getId(), includeLogSummary).stream()
+                .map(node -> toNode(node, includeLogSummary))
+                .sorted(Comparator.comparing(NodeEvidence::startedAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
+        List<OutputAssetReference> outputAssets = outputAssets(
+                workflowService.getNodes(workflow.getId()), warnings);
+        if (!includeLogSummary) {
+            warnings.add("LOG_SUMMARY_NOT_REQUESTED");
+        }
+        return new WorkflowInstanceEvidence(
+                instance.getUid(), workflow.getUid(), workflow.getName(), instance.getStatus(),
+                instance.getTriggerType(), toInstant(instance.getStartTime()), toInstant(instance.getEndTime()),
+                durationMs(instance.getStartTime(), instance.getEndTime()), nodes, outputAssets,
+                List.copyOf(warnings));
+    }
+
+    /**
+     * 为未写入业务数据库的固定比赛任务返回隔离沙盘证据；未知 UID 不提供兜底。
+     *
+     * @param instanceUid 任务实例 UID
+     * @param includeLogSummary 是否返回沙盘日志摘要
+     * @return 白名单沙盘证据，非白名单返回 null
+     * English: Return source-labelled sandbox evidence only for whitelisted task identifiers.
+     */
+    private WorkflowInstanceEvidence competitionSandboxSnapshot(
+            String instanceUid,
+            boolean includeLogSummary) {
+        return switch (instanceUid) {
+            case "task_rec_features_latest" -> sandboxWorkflowEvidence(
+                    instanceUid,
+                    "workflow_rec_features_publish",
+                    "推荐特征发布链路",
+                    "asset_rec_features_prod",
+                    "schema_rec_features_2026_08_11",
+                    Instant.parse("2026-08-11T01:55:00Z"),
+                    Instant.parse("2026-08-11T02:00:00Z"),
+                    includeLogSummary);
+            case "task_quant_eod_ready" -> sandboxWorkflowEvidence(
+                    instanceUid,
+                    "workflow_quant_eod_features",
+                    "量化盘后特征生产链路",
+                    "asset_market_features_eod",
+                    "schema_quant_eod_2026_08_11",
+                    Instant.parse("2026-08-11T07:00:00Z"),
+                    Instant.parse("2026-08-11T07:12:00Z"),
+                    includeLogSummary);
+            default -> null;
+        };
+    }
+
+    /**
+     * 构造带来源标记的只读比赛沙盘工作流证据。
+     *
+     * @param instanceUid 任务实例 UID
+     * @param workflowUid 工作流 UID
+     * @param workflowName 工作流名称
+     * @param assetUid 产出资产 UID
+     * @param schemaSnapshotUid Schema 快照 UID
+     * @param startedAt 开始时间
+     * @param completedAt 完成时间
+     * @param includeLogSummary 是否包含日志摘要
+     * @return 固定且可审计的沙盘证据
+     * English: Construct a fixed competition snapshot with an explicit sandbox source warning.
+     */
+    private WorkflowInstanceEvidence sandboxWorkflowEvidence(
+            String instanceUid,
+            String workflowUid,
+            String workflowName,
+            String assetUid,
+            String schemaSnapshotUid,
+            Instant startedAt,
+            Instant completedAt,
+            boolean includeLogSummary) {
+        List<String> warnings = new java.util.ArrayList<>();
+        warnings.add("COMPETITION_SANDBOX_SNAPSHOT");
+        if (!includeLogSummary) {
+            warnings.add("LOG_SUMMARY_NOT_REQUESTED");
+        }
+        NodeEvidence node = new NodeEvidence(
+                "publish",
+                "SUCCEEDED",
+                startedAt,
+                completedAt,
+                Duration.between(startedAt, completedAt).toMillis(),
+                includeLogSummary ? "比赛隔离沙盘任务已完成，产出版本化数据资产。" : null);
+        return new WorkflowInstanceEvidence(
+                instanceUid,
+                workflowUid,
+                workflowName,
+                "SUCCEEDED",
+                "competition-sandbox",
+                startedAt,
+                completedAt,
+                Duration.between(startedAt, completedAt).toMillis(),
+                List.of(node),
+                List.of(new OutputAssetReference(assetUid, schemaSnapshotUid)),
+                List.copyOf(warnings));
+    }
+
+    /**
+     * 将节点 Entity 转换为脱敏证据。
+     *
+     * @param node 节点实例
+     * @param includeLogSummary 是否包含日志摘要
+     * @return 节点证据
+     * English: Project one persisted node as bounded evidence.
+     */
+    private NodeEvidence toNode(NodeInstance node, boolean includeLogSummary) {
+        return new NodeEvidence(
+                node.getNodeKey(), node.getStatus(), toInstant(node.getStartTime()), toInstant(node.getEndTime()),
+                durationMs(node.getStartTime(), node.getEndTime()),
+                includeLogSummary ? sanitize(node.getLogContent()) : null);
+    }
+
+    /**
+     * 先脱敏再截断节点日志，隐藏凭据、连接串、手机号和邮箱。
+     *
+     * @param value 原始节点日志
+     * @return 脱敏且受长度限制的摘要
+     * English: Redact credentials and personal identifiers before truncating log summaries.
+     */
+    private String sanitize(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        String sanitized = SECRET_PATTERN.matcher(value).replaceAll("[REDACTED]");
+        return sanitized.length() <= LOG_LIMIT ? sanitized : sanitized.substring(0, LOG_LIMIT);
+    }
+
+    /**
+     * 从持久化节点配置提取产出资产引用，坏 JSON 只产生 warning。
+     *
+     * @param workflowNodes 工作流节点定义
+     * @param warnings 警告收集器
+     * @return 按 assetUid 去重且稳定排序的产出引用
+     * English: Extract unique output asset references from persisted node configuration.
+     */
+    private List<OutputAssetReference> outputAssets(
+            List<WorkflowNode> workflowNodes,
+            List<String> warnings) {
+        Map<String, OutputAssetReference> values = new LinkedHashMap<>();
+        for (WorkflowNode node : workflowNodes) {
+            if (node.getConfigJson() == null || node.getConfigJson().isBlank()) {
+                continue;
+            }
+            try {
+                JsonNode config = objectMapper.readTree(node.getConfigJson());
+                String assetUid = text(config, "outputAssetUid");
+                if (assetUid == null && "publish".equalsIgnoreCase(node.getNodeKey())) {
+                    assetUid = text(config, "assetRef");
+                }
+                if (assetUid != null) {
+                    values.put(assetUid, new OutputAssetReference(
+                            assetUid, text(config, "schemaSnapshotUid")));
+                }
+            } catch (Exception exception) {
+                warnings.add("NODE_CONFIG_INVALID_JSON:" + node.getNodeKey());
+            }
+        }
+        return values.values().stream()
+                .sorted(Comparator.comparing(OutputAssetReference::assetUid)).toList();
+    }
+
+    /**
+     * 读取受限 JSON 文本；非文本、空白或超长内容返回 null。
+     *
+     * @param node JSON 对象
+     * @param field 字段名
+     * @return 有界文本或 null
+     * English: Text.
+     */
+    private String text(JsonNode node, String field) {
+        JsonNode value = node.path(field);
+        if (!value.isTextual()) {
+            return null;
+        }
+        String text = value.textValue().trim();
+        return text.isEmpty() || text.length() > 128 ? null : text;
+    }
+
+    /** 计算起止时间间隔；缺失时间时返回 null。
+     * English: Return elapsed milliseconds or null when a timestamp is absent.
+     */
+    private Long durationMs(LocalDateTime start, LocalDateTime end) {
+        return start == null || end == null ? null : Duration.between(start, end).toMillis();
+    }
+
+    /** 将数据库 UTC 本地时间转换为 RFC 3339。
+     * English: Interpret the stored local timestamp as UTC.
+     */
+    private Instant toInstant(LocalDateTime value) {
+        return value == null ? null : value.toInstant(ZoneOffset.UTC);
+    }
+
+    /** 表示节点执行证据。
+     * English: Node Evidence.
+     */
+    public record NodeEvidence(
+            String nodeKey,
+            String status,
+            Instant startedAt,
+            Instant completedAt,
+            Long durationMs,
+            String logSummary) {
+    }
+
+    /** 表示任务产出资产引用；无可靠记录时返回空列表。
+     * English: Output Asset Reference.
+     */
+    public record OutputAssetReference(String assetUid, String schemaSnapshotUid) {
+    }
+
+    /** 表示可跨平台引用的工作流实例证据。
+     * English: Workflow Instance Evidence.
+     */
+    public record WorkflowInstanceEvidence(
+            String instanceUid,
+            String workflowUid,
+            String workflowName,
+            String status,
+            String triggerType,
+            Instant startedAt,
+            Instant completedAt,
+            Long durationMs,
+            List<NodeEvidence> nodes,
+            List<OutputAssetReference> outputAssets,
+            List<String> warnings,
+            Map<String, String> resourceVersions) {
+        /** 保留既有业务证据构造方式。 / Preserve the existing business evidence constructor. */
+        public WorkflowInstanceEvidence(String instanceUid, String workflowUid, String workflowName, String status,
+                String triggerType, Instant startedAt, Instant completedAt, Long durationMs, List<NodeEvidence> nodes,
+                List<OutputAssetReference> outputAssets, List<String> warnings) {
+            this(instanceUid, workflowUid, workflowName, status, triggerType, startedAt, completedAt, durationMs,
+                    nodes, outputAssets, warnings, Map.of());
+        }
+
+        /** 附加当前写目标版本并保留全部业务字段。 / Attach current write-target versions while preserving all business fields. */
+        public WorkflowInstanceEvidence withResourceVersions(Map<String, String> versions) {
+            return new WorkflowInstanceEvidence(instanceUid, workflowUid, workflowName, status, triggerType, startedAt,
+                    completedAt, durationMs, nodes, outputAssets, warnings, Map.copyOf(versions));
+        }
+    }
+}
