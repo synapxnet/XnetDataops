@@ -1,3 +1,15 @@
+## GOAI 決勝リリース · v1.3.0
+
+**[リリースとソースのダウンロード](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0) · [GOAI ブランチ](https://github.com/synapxnet/XnetDataops/tree/GOAI-Competition) · [対応するフロントエンド](https://github.com/synapxnet/XnetDataops-web/releases/tag/v1.3.0) · [OpenXnet インストーラー](https://github.com/synapxnet/OpenXnet/releases/tag/v1.3.0)**
+
+既定の `display` ブランチは過去の展示コードを保持します。GOAI release バッジは別の決勝リリースを示し、このブランチや稼働中のサービス全体が更新済みであることを意味しません。固定版はリリースページから取得してください。
+
+v1.3.0 は組織・リソース範囲のガバナンス、DAG 永続化、承認ダイジェスト、リソース版の検証、常駐 Agent の接続契約を統合します。Maven 14 Reactor のビルドと 76 件のテストが成功し、実データベースを必要とする 1 件は条件付きスキップです。競技状態の更新は実運用データの一括バックフィルではなく、一度限りの移行は継続的チェックポイントではありません。
+
+ビルド、依存関係、検証範囲は [固定版ソース納品ガイド](https://github.com/synapxnet/XnetDataops/blob/ac638e05b02f69e4085a685e6e08ea5d63723f6c/docs/GOAI-V1.3.0-SOURCE-DELIVERY.md) を参照してください。README の更新でタグの移動やサービスの再デプロイは行いません。
+
+---
+
 <div align="center">
 
 [简体中文](./README.md) | [English](./README.en-US.md) | **日本語**
@@ -6,7 +18,7 @@
 
 **データ統合、開発、ガバナンス、サービス化を支えるオープンソース DataOps**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-1677ff.svg)](https://www.xnetdataops.synapxnet.cn)
+[![GOAI release](https://img.shields.io/badge/GOAI%20release-1.3.0-1677ff.svg)](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0)
 [![Java](https://img.shields.io/badge/Java-17-e76f00.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-6db33f.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/license-MIT-2ea44f.svg)](./LICENSE)
@@ -15,9 +27,11 @@
 
 </div>
 
+> 以下の画像は過去の展示版です。v1.3.0 の現在の UI や今回の検証結果を示すものではありません。
+
 ![XnetDataops 概要](./docs/images/xnetdataops-overview.png)
 
-## 画面プレビュー
+## 画面プレビュー（過去のバージョン）
 
 | デモログイン | データソース設定 |
 | --- | --- |

@@ -1,3 +1,15 @@
+## GOAI finals release · v1.3.0
+
+**[Release and source downloads](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0) · [GOAI branch](https://github.com/synapxnet/XnetDataops/tree/GOAI-Competition) · [Matching frontend](https://github.com/synapxnet/XnetDataops-web/releases/tag/v1.3.0) · [OpenXnet installer](https://github.com/synapxnet/OpenXnet/releases/tag/v1.3.0)**
+
+This default `display` branch retains historical showcase code. The GOAI release badge links to the separate finals release; it does not claim that this branch or deployed services were upgraded. Download the pinned version from the release page.
+
+Version 1.3.0 integrates organization/resource governance, DAG persistence, approval digests, resource-version checks, and the resident Agent integration contract. All 14 Maven reactor items built; 76 tests passed and one real-database test was conditionally skipped. Competition-state backfill is not production bulk backfill, and one-time migration is not continuous checkpointing.
+
+See the pinned [source delivery guide](https://github.com/synapxnet/XnetDataops/blob/ac638e05b02f69e4085a685e6e08ea5d63723f6c/docs/GOAI-V1.3.0-SOURCE-DELIVERY.md) for build instructions, dependencies and verification limits. This documentation update does not move the release tag or redeploy services.
+
+---
+
 <div align="center">
 
 [简体中文](./README.md) | **English** | [日本語](./README.ja-JP.md)
@@ -6,7 +18,7 @@
 
 **Open-source DataOps for integration, development, governance, and data services**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-1677ff.svg)](https://www.xnetdataops.synapxnet.cn)
+[![GOAI release](https://img.shields.io/badge/GOAI%20release-1.3.0-1677ff.svg)](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0)
 [![Java](https://img.shields.io/badge/Java-17-e76f00.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-6db33f.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/license-MIT-2ea44f.svg)](./LICENSE)
@@ -15,9 +27,11 @@
 
 </div>
 
+> The images below are historical showcase screenshots, not the current v1.3.0 UI or acceptance evidence.
+
 ![XnetDataops overview](./docs/images/xnetdataops-overview.png)
 
-## Product Tour
+## Product Tour (historical screenshots)
 
 | Demo login | Data source configuration |
 | --- | --- |
