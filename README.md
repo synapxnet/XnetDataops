@@ -1,4 +1,14 @@
-> GOAI 决赛版本 **1.3.0**：源码范围、构建验证与运行边界见 [交付说明](docs/GOAI-V1.3.0-SOURCE-DELIVERY.md)。
+## GOAI 决赛发布 · v1.3.0
+
+**[发布与源码下载](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0) · [GOAI 开发分支](https://github.com/synapxnet/XnetDataops/tree/GOAI-Competition) · [配套前端 v1.3.0](https://github.com/synapxnet/XnetDataops-web/releases/tag/v1.3.0) · [OpenXnet 安装包](https://github.com/synapxnet/OpenXnet/releases/tag/v1.3.0)**
+
+当前分支持续维护 GOAI 决赛版本；发布页的 `v1.3.0` 标签固定已核验源码，本次 README 更新不会移动标签或重新部署线上服务。
+
+v1.3.0 整合组织与资源作用域治理、DAG 持久化、审批摘要与资源版本校验，并提供驻场 Agent 接入声明。驻场 Agent 由平台独立服务运行，与 OpenXnet 协同。
+
+14 个 Maven Reactor 构建成功；76 项测试通过，1 项真实数据库测试条件跳过。比赛状态回填不是生产批量回填，一次性迁移不等于持续检查点。 具体构建、依赖和边界见 [v1.3.0 源码交付说明](https://github.com/synapxnet/XnetDataops/blob/ac638e05b02f69e4085a685e6e08ea5d63723f6c/docs/GOAI-V1.3.0-SOURCE-DELIVERY.md)。
+
+---
 
 <div align="center">
 
@@ -6,7 +16,7 @@
 
 **覆盖数据集成、开发、治理与服务化的开源 DataOps 平台**
 
-[![Version](https://img.shields.io/badge/version-1.3.0-1677ff.svg)](http://www.xnetdataops.synapxnet.cn)
+[![GOAI release](https://img.shields.io/badge/GOAI%20release-1.3.0-1677ff.svg)](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0)
 [![Java](https://img.shields.io/badge/Java-17-e76f00.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.6-6db33f.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/license-MIT-2ea44f.svg)](./LICENSE)
@@ -14,6 +24,8 @@
 [在线体验](http://www.xnetdataops.synapxnet.cn) · [前端仓库 XnetDataops-web](https://github.com/synapxnet/XnetDataops-web) · [OpenXnet 开源社区](https://openxnet.synapxnet.com) · [查看许可](./LICENSE)
 
 </div>
+
+> 以下图片来自历史展示版本，仅用于说明功能布局，不是 v1.3.0 当前 UI 或本轮验收截图。
 
 ![XnetDataops 平台概览](./docs/images/xnetdataops-overview.png)
 
