@@ -13,9 +13,9 @@ Maintainer: maoyo
 
 データ接続、開発、スケジューリング、品質、リネージ、資産、監査、受控協調を担うバックエンドです。
 
-**[v1.3.0 固定ソース](https://github.com/synapxnet/XnetDataops/tree/v1.3.0) · [リリースとダウンロード](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0) · [対応フロントエンド](https://github.com/synapxnet/XnetDataops-web/tree/v1.3.0) · [OpenXnet インストーラー](https://github.com/synapxnet/OpenXnet/releases/tag/v1.3.0)**
+**[v1.3.0 固定ソース](https://github.com/synapxnet/XnetDataops/tree/v1.3.0) · [リリース](https://github.com/synapxnet/XnetDataops/releases/tag/v1.3.0) · [ソース ZIP](https://github.com/synapxnet/XnetDataops/releases/download/v1.3.0/XnetDataops-v1.3.0-source.zip) · [対応フロントエンド](https://github.com/synapxnet/XnetDataops-web/tree/v1.3.0) · [OpenXnet インストーラー](https://github.com/synapxnet/OpenXnet/releases/tag/v1.3.0)**
 
-既定の `display` は過去の展示コードを保持します。GOAI release バッジは別の決勝リリースを示します。再現には以下の固定タグを取得してください。README の変更でタグ、ソース ZIP、稼働中サービスは更新されません。
+既定の `display` は過去の展示コードを保持します。GOAI release バッジは別の決勝リリースを示します。再現には以下の固定タグを取得してください。同じリリース文書を含む v1.3.0 ソース ZIP も利用できます。リリース文書の整理で稼働中サービスの再デプロイは行いません。
 
 ## 現在のデモとログイン
 
@@ -44,7 +44,7 @@ Maintainer: maoyo
 
 12 業務サービスと agent-contract モジュールを含み、組織・資源範囲、DAG 永続化、API キー制御、承認ダイジェスト、冪等性、資源版の照合を扱います。Maven 14 Reactor が成功し、76 テスト成功、実 DB を必要とする 1 件は条件付きスキップです。競技状態の回填は本番データの一括更新ではなく、一度限りの状態移行は継続的チェックポイントではありません。
 
-詳細は [固定版納品ガイド](https://github.com/synapxnet/XnetDataops/blob/v1.3.0/docs/GOAI-V1.3.0-SOURCE-DELIVERY.md) を参照してください。ソース公開、README 更新、今回の読み取り検証は、稼働中の全コンポーネントが同じコミットであることの証明ではありません。
+詳細は [固定版納品ガイド](https://github.com/synapxnet/XnetDataops/blob/v1.3.0/docs/GOAI-V1.3.0-SOURCE-DELIVERY.md) を参照してください。ソース公開、README 更新、今回の読み取り検証は、稼働中の全コンポーネントが同じコミットであることの証明ではありません。 ビルドとテストの[プログラム検証基準 ac638e05](https://github.com/synapxnet/XnetDataops/commit/ac638e05b02f69e4085a685e6e08ea5d63723f6c)を示します。その後のリリース整備は README のみを変更し、プログラムファイルは同一です。
 
 ## 固定版ビルド
 
