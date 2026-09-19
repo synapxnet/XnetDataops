@@ -27,9 +27,29 @@ import java.time.Instant;
  */
 @RestController
 public class AgentDgvToolController {
+    // 仅启用的真实运行时分流，缺失响应不得回退。 Route only enabled real execution; never fall back on missing evidence.
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private FeatureDriftReadOnlyClient featureDriftRuntime;
+
 
     private final AgentDgvEvidenceService evidenceService;
     private final DataOpsResourceScopes scopes;
+
+    /** 保留只读工具错误码与上下文，避免旧全局处理器把权限拒绝变成500。 / Preserve read-tool error codes and context instead of converting denials to generic 500 errors. */
+    @org.springframework.web.bind.annotation.ExceptionHandler(AgentContractException.class)
+    public org.springframework.http.ResponseEntity<AgentContract.ToolResponse<Void>> contractFailure(
+            AgentContractException error, HttpServletRequest request) {
+        Object value = request.getAttribute(AgentContract.CONTEXT_ATTRIBUTE);
+        AgentContract.RequestContext context = value instanceof AgentContract.RequestContext trusted ? trusted : null;
+        AgentContract.ToolMeta meta = new AgentContract.ToolMeta(
+                context == null ? null : context.requestId(), context == null ? null : context.workspaceId(),
+                context == null ? null : context.incidentId(), context == null ? null : context.traceId(),
+                context == null ? null : context.toolName(), AgentContract.CONTRACT_VERSION, Instant.now(), 0L,
+                "XnetDataops/dgv", null, null);
+        AgentContract.ToolError failure = new AgentContract.ToolError(error.getCode(), error.getMessage(), error.isRetryable(), error.getDetails());
+        return org.springframework.http.ResponseEntity.status(error.getHttpStatus())
+                .body(new AgentContract.ToolResponse<>(false, null, failure, meta, null));
+    }
 
     /**
      * 创建 DGV Agent 工具 Controller。
@@ -57,6 +77,9 @@ public class AgentDgvToolController {
         long startedNanos = System.nanoTime();
         String toolName = "dataops.schema.snapshot.get";
         AgentContract.RequestContext context = AgentContract.requireContext(servletRequest, toolName, body);
+        if (featureDriftRuntime != null && featureDriftRuntime.handles(context.toolName(), body.arguments())) {
+            return featureDriftRuntime.invoke(body, context);
+        }
         SchemaSnapshotArguments arguments = body.arguments();
         if (arguments == null) {
             throw new AgentContractException(400, "INVALID_ARGUMENT", "arguments 不能为空");
@@ -83,6 +106,9 @@ public class AgentDgvToolController {
         long startedNanos = System.nanoTime();
         String toolName = "dataops.lineage.get";
         AgentContract.RequestContext context = AgentContract.requireContext(servletRequest, toolName, body);
+        if (featureDriftRuntime != null && featureDriftRuntime.handles(context.toolName(), body.arguments())) {
+            return featureDriftRuntime.invoke(body, context);
+        }
         LineageArguments arguments = requireLineageArguments(body.arguments());
         DataOpsResourceScopes.Scope scope = scopes.forWorkspace(context.workspaceId());
         scope.requireAsset(arguments.assetUid());

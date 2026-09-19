@@ -11,6 +11,7 @@
 package com.synapxnet.dataopstskservice.agent;
 
 import com.synapxnet.goai.contract.AgentContract;
+import com.synapxnet.goai.contract.FeatureDriftRuntimeClient;
 import com.synapxnet.goai.contract.AgentContractException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class AgentWorkflowToolController {
+    // 仅启用的真实运行时分流，缺失响应不得回退。 Route only enabled real execution; never fall back on missing evidence.
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private FeatureDriftRuntimeClient featureDriftRuntime;
+
 
     private static final String TOOL_NAME = "dataops.workflow.instance.get";
     private final WorkflowInstanceEvidenceService evidenceService;
@@ -50,6 +55,9 @@ public class AgentWorkflowToolController {
             HttpServletRequest servletRequest) {
         long startedNanos = System.nanoTime();
         AgentContract.RequestContext context = AgentContract.requireContext(servletRequest, TOOL_NAME, body);
+        if (featureDriftRuntime != null && featureDriftRuntime.handles(context.toolName(), body.arguments())) {
+            return featureDriftRuntime.invoke(body, context);
+        }
         if (body.arguments() == null) {
             throw new AgentContractException(400, "INVALID_ARGUMENT", "arguments 不能为空");
         }

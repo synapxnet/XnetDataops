@@ -11,6 +11,7 @@
 package com.synapxnet.dataopstskservice.agent;
 
 import com.synapxnet.goai.contract.AgentContract;
+import com.synapxnet.goai.contract.FeatureDriftRuntimeClient;
 import com.synapxnet.goai.contract.AgentContractException;
 import com.synapxnet.goai.contract.GovernedApprovalVerifier;
 import com.synapxnet.goai.contract.GovernedResourceVersionTracker;
@@ -38,7 +39,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @org.springframework.context.annotation.Lazy(false)
 @RestController
 public class CompetitionDatasetToolController {
+    // 仅启用的真实运行时分流，缺失响应不得回退。 Route only enabled real execution; never fall back on missing evidence.
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private FeatureDriftRuntimeClient featureDriftRuntime;
 
+
+    private volatile boolean legacyStateUnavailable;
     private final GovernedApprovalVerifier approvalVerifier;
     private final QuantitativeDatasetProductService quantitativeDatasetProductService;
     private final Map<String, DatasetState> datasets = new ConcurrentHashMap<>();
@@ -62,17 +68,32 @@ public class CompetitionDatasetToolController {
     }
 
     /** 启动时仅从显式匹配摘要的一次性迁移文件恢复。 / Restore at startup only from an explicit one-shot migration file with a matching digest. */
-    @Autowired
     public CompetitionDatasetToolController(GovernedApprovalVerifier approvalVerifier,
             QuantitativeDatasetProductService quantitativeDatasetProductService, ObjectMapper mapper,
             @Value("${goai.resource-state-migration-file:}") String migrationFile,
             @Value("${goai.resource-state-migration-sha256:}") String migrationSha256) {
+        this(approvalVerifier, quantitativeDatasetProductService, mapper, migrationFile, migrationSha256, false);
+    }
+
+    /** 显式真实运行时可隔离未知旧状态，保留普通服务。 / Explicit real execution may quarantine unknown legacy state while retaining native services. */
+    @Autowired
+    public CompetitionDatasetToolController(GovernedApprovalVerifier approvalVerifier,
+            QuantitativeDatasetProductService quantitativeDatasetProductService, ObjectMapper mapper,
+            @Value("${goai.resource-state-migration-file:}") String migrationFile,
+            @Value("${goai.resource-state-migration-sha256:}") String migrationSha256,
+            @Value("${OPENXNET_FEATURE_DRIFT_ENABLED:false}") boolean realRuntimeEnabled) {
         this(approvalVerifier, quantitativeDatasetProductService);
-        restoreMigration(mapper, migrationFile, migrationSha256);
+        restoreMigration(mapper, migrationFile, migrationSha256, realRuntimeEnabled);
+    }
+
+    /** 未知旧治理状态不能初始化或返回成功。 / Unknown legacy governance state cannot initialize or return success. */
+    private void requireLegacyState() {
+        if (legacyStateUnavailable) throw new AgentContractException(503, "STATE_UNAVAILABLE",
+                "旧治理状态缺少最新持久快照，已隔离；未回放旧迁移或重置资源版本。");
     }
 
     /** 校验完整迁移文件、来源和消费标记，失败时阻止启动。 / Verify the complete migration file, source and consumption marker, failing startup on error. */
-    private void restoreMigration(ObjectMapper mapper, String migrationFile, String expectedSha256) {
+    private void restoreMigration(ObjectMapper mapper, String migrationFile, String expectedSha256, boolean realRuntimeEnabled) {
         if ((migrationFile == null || migrationFile.isBlank()) && (expectedSha256 == null || expectedSha256.isBlank())) return;
         try {
             if (migrationFile == null || migrationFile.isBlank() || expectedSha256 == null || !expectedSha256.matches("[a-f0-9]{64}")) {
@@ -85,7 +106,6 @@ public class CompetitionDatasetToolController {
                 if (java.nio.file.Files.isSymbolicLink(cursor)) throw new IllegalArgumentException("Migration path cannot contain links.");
             }
             java.nio.file.Path consumed = source.resolveSibling(source.getFileName() + ".consumed");
-            if (java.nio.file.Files.exists(consumed, java.nio.file.LinkOption.NOFOLLOW_LINKS)) throw new IllegalStateException("Migration has already been consumed; a fresh export is required.");
             byte[] bytes = java.nio.file.Files.readAllBytes(source);
             String actual = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));
             if (!expectedSha256.equals(actual)) throw new IllegalArgumentException("Migration digest does not match.");
@@ -103,6 +123,15 @@ public class CompetitionDatasetToolController {
                 throw new IllegalArgumentException("Migration schema, platform or source artifact does not match.");
             }
             Instant.parse(root.path("exportedAt").asText());
+            if (java.nio.file.Files.exists(consumed, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+                if (!realRuntimeEnabled || !java.nio.file.Files.isRegularFile(consumed, java.nio.file.LinkOption.NOFOLLOW_LINKS)
+                        || java.nio.file.Files.size(consumed) > 66
+                        || !actual.equals(java.nio.file.Files.readString(consumed, StandardCharsets.UTF_8).trim())) {
+                    throw new IllegalStateException("Consumed migration cannot provide current governed state.");
+                }
+                legacyStateUnavailable = true;
+                return;
+            }
             restoreGovernedState(strictMapper.treeToValue(root.path("tracker"), GovernedResourceVersionTracker.StateSnapshot.class),
                     strictMapper.convertValue(root.path("domainState"), new TypeReference<Map<String, LegacyDatasetState>>() { }),
                     strictMapper.convertValue(root.path("domainBindings"), new TypeReference<Map<String, DatasetBinding>>() { }));
@@ -121,6 +150,10 @@ public class CompetitionDatasetToolController {
             HttpServletRequest servletRequest) {
         AgentContract.RequestContext context = context(
                 servletRequest, "dataops.training.dataset.build", body);
+        if (featureDriftRuntime != null && featureDriftRuntime.handles(context.toolName(), body.arguments())) {
+            return featureDriftRuntime.invoke(body, context);
+        }
+        requireLegacyState();
         TrainingDatasetArguments arguments = requireTrainingArguments(body.arguments());
         requireCanonicalTarget(body, arguments.workflowInstanceUid(), arguments.datasetUid());
         if (!"a-share-factor-demo-v1".equals(arguments.datasetUid())) {
@@ -157,6 +190,10 @@ public class CompetitionDatasetToolController {
             HttpServletRequest servletRequest) {
         AgentContract.RequestContext context = context(
                 servletRequest, "dataops.feature.backfill.start", body);
+        if (featureDriftRuntime != null && featureDriftRuntime.handles(context.toolName(), body.arguments())) {
+            return featureDriftRuntime.invoke(body, context);
+        }
+        requireLegacyState();
         FeatureBackfillArguments arguments = requireBackfillArguments(body.arguments());
         String canonicalResourceId = arguments.assetUid() + "/backfill";
         requireCanonicalTarget(body, arguments.workflowInstanceUid(), canonicalResourceId);
@@ -189,6 +226,10 @@ public class CompetitionDatasetToolController {
         long startedNanos = System.nanoTime();
         AgentContract.RequestContext context = context(
                 servletRequest, "dataops.dataset.validation.get", body);
+        if (featureDriftRuntime != null && featureDriftRuntime.handles(context.toolName(), body.arguments())) {
+            return featureDriftRuntime.invoke(body, context);
+        }
+        requireLegacyState();
         DatasetValidationArguments arguments = requireValidationArguments(body.arguments());
         return versionTracker.readConsistently(() -> validationResponse(arguments.datasetUid(), context, startedNanos));
     }
@@ -286,6 +327,7 @@ public class CompetitionDatasetToolController {
 
     /** 读取固定工作流关联目标的真实版本。 / Read actual versions of the targets explicitly bound to a workflow. */
     public Map<String, String> workflowResourceVersions(String workspaceId, String instanceUid) {
+        requireLegacyState();
         return versionTracker.readConsistently(() -> {
             String canonical = WORKFLOW_RESOURCES.get(instanceUid);
             if (canonical == null) return Map.of();
@@ -296,11 +338,13 @@ public class CompetitionDatasetToolController {
 
     /** 同一锁内读取领域证据及治理版本。 / Read domain evidence and governed versions under the same lock. */
     public <T> T readConsistently(java.util.function.Supplier<T> reader) {
+        requireLegacyState();
         return versionTracker.readConsistently(reader);
     }
 
     /** 仅为明确登记目标建立平台初始版本。 / Initialize platform-owned versions only for explicitly registered targets. */
     private void registerKnownResource(String workspaceId, String canonicalResourceId) {
+        requireLegacyState();
         if (!WORKFLOW_RESOURCES.containsValue(canonicalResourceId)) {
             throw new AgentContractException(404, "RESOURCE_NOT_REGISTERED", "资源未列入平台登记关联");
         }

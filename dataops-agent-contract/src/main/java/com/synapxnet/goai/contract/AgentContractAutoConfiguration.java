@@ -31,6 +31,7 @@ public class AgentContractAutoConfiguration {
     }
     /** 创建默认拒绝的资源映射。 Create explicit server-owned grants with no unrestricted fallback. */
     @Bean
+    @org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean(DataOpsResourceScopes.class)
     DataOpsResourceScopes dataOpsResourceScopes(
             @Value("${openxnet.dataops.resource-scopes-json:[]}") String json, ObjectMapper mapper) {
         return new DataOpsResourceScopes(json, mapper);

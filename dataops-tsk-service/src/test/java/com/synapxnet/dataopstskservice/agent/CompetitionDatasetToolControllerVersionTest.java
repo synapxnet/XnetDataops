@@ -248,6 +248,43 @@ class CompetitionDatasetToolControllerVersionTest {
         assertFalse(Files.exists(source.resolveSibling(source.getFileName() + ".consumed")));
     }
 
+    /** 已消费且启用真实运行时时仅隔离旧治理，不能重放或初始化版本。 / Consumed migration with real execution quarantines legacy governance without replay or version initialization. */
+    @Test void consumedMigrationQuarantinesLegacyStateAndAllowsRealBridge() throws Exception {
+        var fixture = legacyFixture("dataset_risk", 24);
+        var source = temporary.resolve("quarantine.json");
+        byte[] bytes = new ObjectMapper().writeValueAsBytes(migrationDocument(fixture));
+        Files.write(source, bytes);
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+        new CompetitionDatasetToolController(approval(), productService(), new ObjectMapper(), source.toString(), digest);
+        byte[] marker = Files.readAllBytes(source.resolveSibling("quarantine.json.consumed"));
+        var isolated = new CompetitionDatasetToolController(approval(), productService(), new ObjectMapper(), source.toString(), digest, true);
+        assertEquals("STATE_UNAVAILABLE", assertThrows(AgentContractException.class, () -> validate(isolated, "new", "dataset_risk")).getCode());
+        assertEquals("STATE_UNAVAILABLE", assertThrows(AgentContractException.class, () -> backfill(isolated, "new", "42", "unknown", false, "dataset_risk")).getCode());
+        assertEquals("STATE_UNAVAILABLE", assertThrows(AgentContractException.class, () -> isolated.workflowResourceVersions("ws", "task_risk_features_latest")).getCode());
+        var field = CompetitionDatasetToolController.class.getDeclaredField("versionTracker");field.setAccessible(true);
+        assertTrue(((GovernedResourceVersionTracker) field.get(isolated)).snapshot().liveVersions().isEmpty());
+        var bridge = mock(com.synapxnet.goai.contract.FeatureDriftRuntimeClient.class);
+        when(bridge.handles(any(), any())).thenReturn(true);
+        var expected = new AgentContract.ToolResponse<Map<String,Object>>(true, Map.of("realBridge", true), null, null, null);
+        when(bridge.invoke(any(), any())).thenReturn((AgentContract.ToolResponse) expected);
+        var bridgeField = CompetitionDatasetToolController.class.getDeclaredField("featureDriftRuntime");bridgeField.setAccessible(true);bridgeField.set(isolated, bridge);
+        assertSame(expected, backfill(isolated, "new", "42", "real", false, "dataset_risk_repaired_19"));
+        assertArrayEquals(bytes, Files.readAllBytes(source));assertArrayEquals(marker, Files.readAllBytes(source.resolveSibling("quarantine.json.consumed")));
+    }
+
+    /** 隔离模式也不接受篡改消费标记或迁移源。 / Quarantine mode still rejects tampered consumed markers or migration sources. */
+    @Test void realRuntimeDoesNotBypassMigrationIntegrity() throws Exception {
+        var source = temporary.resolve("tampered.json");
+        byte[] bytes = new ObjectMapper().writeValueAsBytes(migrationDocument(legacyFixture("dataset_risk", 24)));
+        Files.write(source, bytes);
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+        Files.writeString(source.resolveSibling("tampered.json.consumed"), "0".repeat(64) + "\n");
+        assertThrows(IllegalStateException.class, () -> new CompetitionDatasetToolController(approval(), productService(), new ObjectMapper(), source.toString(), digest, true));
+        Files.writeString(source.resolveSibling("tampered.json.consumed"), digest + "\n");
+        Files.writeString(source, "{}");
+        assertThrows(IllegalStateException.class, () -> new CompetitionDatasetToolController(approval(), productService(), new ObjectMapper(), source.toString(), digest, true));
+    }
+
     /** 创建对应旧导出格式的迁移文档。 / Create a migration document matching the old export format. */
     private Map<String, Object> migrationDocument(LegacyFixture fixture) {
         var result = new LinkedHashMap<String, Object>();
